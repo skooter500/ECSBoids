@@ -8,11 +8,11 @@ using UnityEngine;
 
 public class CubeJobSystem : JobComponentSystem
 {
-    struct CubeJob : IJobProcessComponentData<Position, Rotation>
+    struct CubeJob : IJobProcessComponentData<Position, Rotation, Boid>
     {
         [ReadOnly] public float deltaTime;
 
-        public void Execute(ref Position p, ref Rotation q)
+        public void Execute(ref Position p, ref Rotation q, ref Boid b)
         {
             Vector3 pos = p.Value;
             pos.y += deltaTime;
@@ -20,31 +20,31 @@ public class CubeJobSystem : JobComponentSystem
         }
     }
 
-    struct CopyTransformsToJob:IJobProcessComponentData<Position, Rotation>
-    {    
-        public NativeArray<Vector3> positions;
-        public NativeArray<Quaternion> rotations;
-
-        public void Execute(ref Position p, ref Rotation q)
-        {
-            positions[index] = p;
-            rotations[index] = q;
-        }
-        
-    }
-    struct CopyTransformsFromJob:IJobProcessComponentData<Position, Rotation>
+    struct CopyTransformsToJob:IJobProcessComponentData<Position, Rotation, Boid>
     {
         public NativeArray<Vector3> positions;
         public NativeArray<Quaternion> rotations;
 
-        public void Execute(ref Position p, ref Rotation q)
+        public void Execute(ref Position p, ref Rotation r, ref Boid b)
         {
-            p = positions[index];
-            q = rotations[index];
+            positions[b.boidId] = p.Value;
+            rotations[b.boidId] = r.Value;
         }
         
     }
+    struct CopyTransformsFromJob:IJobProcessComponentData<Position, Rotation, Boid>
+    {
+        public NativeArray<Vector3> positions;
+        public NativeArray<Quaternion> rotations;
 
+        public void Execute(ref Position p, ref Rotation r, ref Boid b)
+        {
+            p.Value = positions[b.boidId];
+            r.Value = rotations[b.boidId];
+        }
+        
+    }
+    /*
     struct CountNeighboursJob : IJobParallelFor
     {        
         [NativeDisableParallelForRestriction]
@@ -71,18 +71,24 @@ public class CubeJobSystem : JobComponentSystem
             throw new System.NotImplementedException();
         }
     }
-
+    */
 
     private NativeArray<int> counts;
+    public NativeArray<Vector3> positions;
+    public NativeArray<Quaternion> rotations;
 
     protected override void OnCreateManager()
     {
         counts = new NativeArray<int>(100, Allocator.Persistent);
+        positions = new NativeArray<Vector3>(100, Allocator.Persistent);
+        rotations = new NativeArray<Quaternion>(100, Allocator.Persistent);
     }
 
     protected override void OnDestroyManager()
     {
         counts.Dispose();
+        positions.Dispose();
+        rotations.Dispose();
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
@@ -104,8 +110,6 @@ public class CubeJobSystem : JobComponentSystem
         {
             positions = this.positions
             , rotations = this.rotations
-            , positionsDA = this.data.positionsDA
-            , rotationsDA = this.data.rotationsDA
         };
 
         /*
@@ -117,8 +121,19 @@ public class CubeJobSystem : JobComponentSystem
         };
         */
 
-        var ctjHandle = ctj.Schedule(data.Length, 10, inputDeps);
+        var ctjHandle = ctj.Schedule(this, inputDeps);
 
-        return cfj.Schedule(data.Length, 10, ctjHandle);
+        return cfj.Schedule(this, ctjHandle);
     }
+
+    /*
+    [Inject] CubeGroup cubeGroup;
+    struct CubeGroup
+    {
+        public int Length;
+        ComponentDataArray<Position> positionCDA;
+        ComponentDataArray<Rotation> rotationCDA;
+        
+    }
+    */
 }

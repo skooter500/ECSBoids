@@ -5,6 +5,11 @@ using UnityEngine;
 using Unity.Transforms;
 using Unity.Rendering;
 
+public struct Boid:IComponentData
+{
+    public int boidId;
+}
+
 public class Bootstrap : MonoBehaviour
 {
     private EntityArchetype cubeArchitype;
@@ -14,7 +19,7 @@ public class Bootstrap : MonoBehaviour
     public Mesh mesh;
     public Material material;
 
-    Entity CreateCube(Vector3 pos, Quaternion q)
+    Entity CreateCube(Vector3 pos, Quaternion q, int i)
     {
         Entity entity = entityManager.CreateEntity(cubeArchitype);
 
@@ -26,7 +31,8 @@ public class Bootstrap : MonoBehaviour
 
         entityManager.SetComponentData(entity, p);
         entityManager.SetComponentData(entity, r);
-
+        entityManager.SetComponentData(entity, new Boid() {boidId = i});
+        
         entityManager.AddSharedComponentData(entity, renderMesh);
         return entity;
     }
@@ -40,7 +46,8 @@ public class Bootstrap : MonoBehaviour
 
         cubeArchitype = entityManager.CreateArchetype(
             typeof(Position),
-            typeof(Rotation)
+            typeof(Rotation),
+            typeof(Boid)
         );
 
         renderMesh = new RenderMesh();
@@ -50,7 +57,7 @@ public class Bootstrap : MonoBehaviour
         for (int i = 0; i < numCubes; i++)
         {
             Vector3 pos = Random.insideUnitSphere * 100;
-            CreateCube(transform.position + pos, Quaternion.identity);
+            CreateCube(transform.position + pos, Quaternion.identity, i);
         }
 
     }
