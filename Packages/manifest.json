@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.unity.burst": "0.2.4-preview.41",
     "com.unity.entities": "0.0.12-preview.23",
     "com.unity.package-manager-ui": "2.0.3",
     "com.unity.rendering.hybrid": "0.0.1-preview.3",
