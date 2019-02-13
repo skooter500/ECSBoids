@@ -20,12 +20,39 @@ public class CubeJobSystem : JobComponentSystem
         }
     }
 
-    struct CountNeighboursJob : IJobParallelFor
-    {
-        public ComponentDataArray<Position> positions;
+    struct CopyTransformsToJob:IJobProcessComponentData<Position, Rotation>
+    {    
+        public NativeArray<Vector3> positions;
+        public NativeArray<Quaternion> rotations;
 
+        public void Execute(ref Position p, ref Rotation q)
+        {
+            positions[index] = p;
+            rotations[index] = q;
+        }
+        
+    }
+    struct CopyTransformsFromJob:IJobProcessComponentData<Position, Rotation>
+    {
+        public NativeArray<Vector3> positions;
+        public NativeArray<Quaternion> rotations;
+
+        public void Execute(ref Position p, ref Rotation q)
+        {
+            p = positions[index];
+            q = rotations[index];
+        }
+        
+    }
+
+    struct CountNeighboursJob : IJobParallelFor
+    {        
         [NativeDisableParallelForRestriction]
-        public NativeArray<int> counts;
+        public NativeArray<int> counts;        
+        [NativeDisableParallelForRestriction]
+        public NativeArray<Vector3> positions;        
+        [NativeDisableParallelForRestriction]
+        public NativeArray<Quaternion> rotations;
         public float neighbourDistance;
         public void Execute(int index)
         {
@@ -45,14 +72,6 @@ public class CubeJobSystem : JobComponentSystem
         }
     }
 
-    private struct Data
-    {
-        public readonly int Length;
-        public EntityArray Entities;
-        public ComponentDataArray<Position> positions;
-    }
-
-    [Inject] private Data data;
 
     private NativeArray<int> counts;
 
@@ -68,18 +87,38 @@ public class CubeJobSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
+        /* 
         var job = new CubeJob()
         {
             deltaTime = Time.deltaTime
         };
+        */
 
+        var ctj = new CopyTransformsToJob()
+        {
+            positions = this.positions
+            , rotations = this.rotations
+        };
+
+        var cfj = new CopyTransformsFromJob()
+        {
+            positions = this.positions
+            , rotations = this.rotations
+            , positionsDA = this.data.positionsDA
+            , rotationsDA = this.data.rotationsDA
+        };
+
+        /*
         var cnj = new CountNeighboursJob()
         {
             counts = this.counts
             , positions = this.data.positions
             , neighbourDistance = 20
         };
+        */
 
-        return cnj.Schedule(data.Length, 10, inputDeps);
+        var ctjHandle = ctj.Schedule(data.Length, 10, inputDeps);
+
+        return cfj.Schedule(data.Length, 10, ctjHandle);
     }
 }
