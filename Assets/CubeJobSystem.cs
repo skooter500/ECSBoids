@@ -8,17 +8,39 @@ using UnityEngine;
 
 public class CubeJobSystem : JobComponentSystem
 {
-
-
-    struct CubeJob : IJobProcessComponentData<Position, Rotation, Boid>
+    struct BoidJob : IJobProcessComponentData<Boid>
     {
         [ReadOnly] public float deltaTime;
 
-        public void Execute(ref Position p, ref Rotation q, ref Boid b)
+        [NativeDisableParallelForRestriction]
+        public NativeArray<Vector3> positions;
+        
+        [NativeDisableParallelForRestriction]
+        public NativeArray<Quaternion> rotations;
+
+        public float maxSpeed;
+        public float maxForce;
+
+        public float dT;
+
+        public Vector3 Seek(Vector3 target, ref Boid b)
         {
-            Vector3 pos = p.Value;
-            pos.y += deltaTime;
-            p.Value = pos;
+            Vector3 toTarget = target - positions[b.boidId];
+
+            Vector3 desired = toTarget.normalized * maxSpeed;
+            return desired - b.velocity; 
+        }
+
+        public void Execute(ref Boid b)
+        {
+            Vector3 force = Seek(Vector3.zero, ref  b);
+            b.acceleration = force / b.mass;
+            b.velocity += b.acceleration * dT;
+            positions[b.boidId] += b.velocity * dT; 
+            if (b.velocity.magnitude > 0)
+            {
+                rotations[b.boidId] =  Quaternion.LookRotation(b.velocity);
+            }
         }
     }
 
@@ -55,7 +77,7 @@ public class CubeJobSystem : JobComponentSystem
     struct CountNeighboursJob : IJobParallelFor
     {        
         [NativeDisableParallelForRestriction]    
-        NativeMultiHashMap<int, int> neighbours;
+        public NativeMultiHashMap<int, int> neighbours;
         [NativeDisableParallelForRestriction]
 
         public NativeArray<Vector3> positions;        
@@ -77,17 +99,19 @@ public class CubeJobSystem : JobComponentSystem
         }
     }
     
-
-    private NativeArray<int> neighbours;
+    NativeMultiHashMap<int, int> neighbours;
     public NativeArray<Vector3> positions;
     public NativeArray<Quaternion> rotations;
 
     int maxNeighbours = 20;
     int maxBoids = 100;
 
+    float maxForce = 5;
+    float maxSpeed = 10;
+
     protected override void OnCreateManager()
     {
-        neighbours = new NativeArray<int>(maxBoids * maxNeighbours, Allocator.Persistent);
+        neighbours = new NativeMultiHashMap<int, int>(maxBoids * maxNeighbours, Allocator.Persistent);
         positions = new NativeArray<Vector3>(maxBoids, Allocator.Persistent);
         rotations = new NativeArray<Quaternion>(maxBoids, Allocator.Persistent);
     }
@@ -101,39 +125,49 @@ public class CubeJobSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        /* 
-        var job = new CubeJob()
-        {
-            deltaTime = Time.deltaTime
-        };
-        */
-
+   
+        
+        // Copy entities to the native arrays 
         var ctj = new CopyTransformsToJob()
         {
             positions = this.positions
-            , rotations = this.rotations
+            ,
+            rotations = this.rotations
         };
+        var ctjHandle = ctj.Schedule(this, inputDeps);
+
+        // Count Neigthbours
+        neighbours.Clear();
+        var cnj = new CountNeighboursJob()
+        {
+            positions = this.positions
+            ,
+            rotations = this.rotations
+            ,
+            neighbours = this.neighbours
+        };
+        var cnjHandle = cnj.Schedule(positions.Length, 10, ctjHandle);
+        
+        // Integrate the forces
+        var boidJob = new BoidJob()
+        {
+            positions = this.positions,
+            rotations = this.rotations,
+            dT = Time.deltaTime,
+            maxForce = this.maxForce,
+            maxSpeed = this.maxSpeed
+        };
+        var boidHandle = boidJob.Schedule(this, cnjHandle);
 
 
-
+        // Copy back to the entities
         var cfj = new CopyTransformsFromJob()
         {
             positions = this.positions
-            , rotations = this.rotations
+            ,
+            rotations = this.rotations
         };
-
-        /*
-        var cnj = new CountNeighboursJob()
-        {
-            counts = this.counts
-            , positions = this.data.positions
-            , neighbourDistance = 20
-        };
-        */
-
-        var ctjHandle = ctj.Schedule(this, inputDeps);
-
-        return cfj.Schedule(this, ctjHandle);
+        return cfj.Schedule(this, boidHandle);
     }
 
     /*

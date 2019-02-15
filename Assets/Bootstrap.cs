@@ -8,6 +8,13 @@ using Unity.Rendering;
 public struct Boid:IComponentData
 {
     public int boidId;
+    public Vector3  force;
+    public Vector3  velocity;
+    public Vector3  up;
+    
+    public Vector3  acceleration;
+    public float mass;
+    
 }
 
 public class Bootstrap : MonoBehaviour
@@ -31,7 +38,7 @@ public class Bootstrap : MonoBehaviour
 
         entityManager.SetComponentData(entity, p);
         entityManager.SetComponentData(entity, r);
-        entityManager.SetComponentData(entity, new Boid() {boidId = i});
+        entityManager.SetComponentData(entity, new Boid() {boidId = i, mass = 1});
         
         entityManager.AddSharedComponentData(entity, renderMesh);
         return entity;
