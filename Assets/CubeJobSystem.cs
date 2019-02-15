@@ -8,6 +8,8 @@ using UnityEngine;
 
 public class CubeJobSystem : JobComponentSystem
 {
+
+
     struct CubeJob : IJobProcessComponentData<Position, Rotation, Boid>
     {
         [ReadOnly] public float deltaTime;
@@ -22,7 +24,9 @@ public class CubeJobSystem : JobComponentSystem
 
     struct CopyTransformsToJob:IJobProcessComponentData<Position, Rotation, Boid>
     {
+        [NativeDisableParallelForRestriction]
         public NativeArray<Vector3> positions;
+        [NativeDisableParallelForRestriction]
         public NativeArray<Quaternion> rotations;
 
         public void Execute(ref Position p, ref Rotation r, ref Boid b)
@@ -34,7 +38,10 @@ public class CubeJobSystem : JobComponentSystem
     }
     struct CopyTransformsFromJob:IJobProcessComponentData<Position, Rotation, Boid>
     {
+        [NativeDisableParallelForRestriction]
         public NativeArray<Vector3> positions;
+
+        [NativeDisableParallelForRestriction]
         public NativeArray<Quaternion> rotations;
 
         public void Execute(ref Position p, ref Rotation r, ref Boid b)
@@ -44,12 +51,13 @@ public class CubeJobSystem : JobComponentSystem
         }
         
     }
-    /*
+    
     struct CountNeighboursJob : IJobParallelFor
     {        
+        [NativeDisableParallelForRestriction]    
+        NativeMultiHashMap<int, int> neighbours;
         [NativeDisableParallelForRestriction]
-        public NativeArray<int> counts;        
-        [NativeDisableParallelForRestriction]
+
         public NativeArray<Vector3> positions;        
         [NativeDisableParallelForRestriction]
         public NativeArray<Quaternion> rotations;
@@ -58,35 +66,35 @@ public class CubeJobSystem : JobComponentSystem
         {
             for (int i = 0; i < positions.Length; i++)
             {
-                int count = 0;
                 if (i != index)
                 {
-                    if (Vector3.Distance(positions[index].Value, positions[i].Value) < neighbourDistance)
+                    if (Vector3.Distance(positions[index], positions[i]) < neighbourDistance)
                     {
-                        count++;
+                        neighbours.Add(index, i);
                     }
                 }
-                counts[index] = count;
             }
-            throw new System.NotImplementedException();
         }
     }
-    */
+    
 
-    private NativeArray<int> counts;
+    private NativeArray<int> neighbours;
     public NativeArray<Vector3> positions;
     public NativeArray<Quaternion> rotations;
 
+    int maxNeighbours = 20;
+    int maxBoids = 100;
+
     protected override void OnCreateManager()
     {
-        counts = new NativeArray<int>(100, Allocator.Persistent);
-        positions = new NativeArray<Vector3>(100, Allocator.Persistent);
-        rotations = new NativeArray<Quaternion>(100, Allocator.Persistent);
+        neighbours = new NativeArray<int>(maxBoids * maxNeighbours, Allocator.Persistent);
+        positions = new NativeArray<Vector3>(maxBoids, Allocator.Persistent);
+        rotations = new NativeArray<Quaternion>(maxBoids, Allocator.Persistent);
     }
 
     protected override void OnDestroyManager()
     {
-        counts.Dispose();
+        neighbours.Dispose();
         positions.Dispose();
         rotations.Dispose();
     }
@@ -105,6 +113,8 @@ public class CubeJobSystem : JobComponentSystem
             positions = this.positions
             , rotations = this.rotations
         };
+
+
 
         var cfj = new CopyTransformsFromJob()
         {
