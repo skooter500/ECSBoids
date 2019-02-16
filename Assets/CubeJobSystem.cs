@@ -9,6 +9,40 @@ using UnityEngine;
 public class CubeJobSystem : JobComponentSystem
 {
     [BurstCompile]
+    struct SeperationJob: IJobProcessComponentData<Boid, Seperation>
+    {
+        [NativeDisableParallelForRestriction]
+        public NativeMultiHashMap<int, int> neighbours;
+
+        [NativeDisableParallelForRestriction]
+        public NativeArray<Vector3> positions;
+
+        public void Execute(ref Boid b, ref Seperation s)
+        {
+
+            Vector3 force = Vector3.zero;
+            NativeMultiHashMapIterator<int> iterator;
+            int neighbourID;
+            if (neighbours.TryGetFirstValue(b.boidId, out neighbourID, out iterator))
+            {
+                Vector3 toNeighbour = positions[b.boidId] - positions[neighbourID];
+                force += (Vector3.Normalize(toNeighbour) / toNeighbour.magnitude);
+
+                while(neighbours.TryGetNextValue(out neighbourID, ref iterator))
+                {
+                    // The same as above
+                    toNeighbour = positions[b.boidId] - positions[neighbourID];
+                    force += (Vector3.Normalize(toNeighbour) / toNeighbour.magnitude);
+                }
+            }
+
+            s.force = force * s.weight;
+            b.force += s.force;
+        }        
+    }
+
+
+    [BurstCompile]
     struct BoidJob : IJobProcessComponentData<Boid>
     {
         [ReadOnly] public float deltaTime;
@@ -49,9 +83,7 @@ public class CubeJobSystem : JobComponentSystem
             }
             */
 
-            Vector3 force = Seek(seekTarget, ref b);
-
-            Vector3 newAcceleration = force / b.mass;
+            Vector3 newAcceleration = b.force / b.mass;
             b.acceleration = Vector3.Lerp(b.acceleration, newAcceleration, dT);
             b.velocity += b.acceleration * dT;
 
@@ -66,6 +98,7 @@ public class CubeJobSystem : JobComponentSystem
                 positions[b.boidId] += b.velocity * dT;
                 b.velocity *= (1.0f - (damping * dT));
             }
+            b.force = Vector3.zero;
         }
     }
 
@@ -180,6 +213,14 @@ public class CubeJobSystem : JobComponentSystem
             neighbours = this.neighbours
         };
         var cnjHandle = cnj.Schedule(positions.Length, 10, ctjHandle);
+
+        var seperationJob = new SeperationJob()
+        {
+            positions = this.positions,
+            neighbours = this.neighbours
+        };
+
+        var sjHandle = seperationJob.Schedule(this, cnjHandle);
         
         // Integrate the forces
         var boidJob = new BoidJob()
@@ -194,7 +235,7 @@ public class CubeJobSystem : JobComponentSystem
             banking = 0.1f
 
         };
-        var boidHandle = boidJob.Schedule(this, cnjHandle);
+        var boidHandle = boidJob.Schedule(this, sjHandle);
 
         // Copy back to the entities
         var cfj = new CopyTransformsFromJob()

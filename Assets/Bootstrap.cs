@@ -14,6 +14,8 @@ public struct Boid:IComponentData
     
     public Vector3  acceleration;
     public float mass;
+
+    public float neighbourDistance;
     
 }
 
@@ -53,7 +55,7 @@ public class Bootstrap : MonoBehaviour
         entityManager.SetComponentData(entity, s);
 
 
-        entityManager.SetComponentData(entity, new Boid() {boidId = i, mass = 1});
+        entityManager.SetComponentData(entity, new Boid() {boidId = i, mass = 1, neighbourDistance = 50});
         
 
         entityManager.AddSharedComponentData(entity, renderMesh);
