@@ -17,6 +17,12 @@ public struct Boid:IComponentData
     
 }
 
+public struct Seperation:IComponentData
+{
+    public Vector3 force;
+    public float weight;
+}
+
 public class Bootstrap : MonoBehaviour
 {
     private EntityArchetype cubeArchitype;
