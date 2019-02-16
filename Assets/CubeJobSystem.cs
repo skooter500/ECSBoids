@@ -8,6 +8,7 @@ using UnityEngine;
 
 public class CubeJobSystem : JobComponentSystem
 {
+    [BurstCompile]
     struct BoidJob : IJobProcessComponentData<Boid>
     {
         [ReadOnly] public float deltaTime;
@@ -20,8 +21,12 @@ public class CubeJobSystem : JobComponentSystem
 
         public float maxSpeed;
         public float maxForce;
+        public float damping;
+        public float banking;
 
         public float dT;
+
+        public Vector3 seekTarget;
 
         public Vector3 Seek(Vector3 target, ref Boid b)
         {
@@ -33,17 +38,38 @@ public class CubeJobSystem : JobComponentSystem
 
         public void Execute(ref Boid b)
         {
+            /*
             Vector3 force = Seek(Vector3.zero, ref  b);
             b.acceleration = force / b.mass;
             b.velocity += b.acceleration * dT;
-            positions[b.boidId] += b.velocity * dT; 
+            positions[b.boidId] += b.velocity * dT;
+            if (b.velocity.magnitude > float.Epsilon)
+            {
+                rotations[b.boidId] = Quaternion.LookRotation(b.velocity.normalized);
+            }
+            */
+
+            Vector3 force = Seek(seekTarget, ref b);
+
+            Vector3 newAcceleration = force / b.mass;
+            b.acceleration = Vector3.Lerp(b.acceleration, newAcceleration, dT);
+            b.velocity += b.acceleration * dT;
+
+            b.velocity = Vector3.ClampMagnitude(b.velocity, maxSpeed);
+
             if (b.velocity.magnitude > 0)
             {
-                rotations[b.boidId] =  Quaternion.LookRotation(b.velocity);
+                Vector3 tempUp = Vector3.Lerp(b.up, Vector3.up + (b.acceleration * banking), dT * 3.0f);
+                rotations[b.boidId] = Quaternion.LookRotation(b.velocity, tempUp);
+                b.up = rotations[b.boidId] * Vector3.up;
+
+                positions[b.boidId] += b.velocity * dT;
+                b.velocity *= (1.0f - (damping * dT));
             }
         }
     }
 
+    [BurstCompile]
     struct CopyTransformsToJob:IJobProcessComponentData<Position, Rotation, Boid>
     {
         [NativeDisableParallelForRestriction]
@@ -58,7 +84,9 @@ public class CubeJobSystem : JobComponentSystem
         }
         
     }
-    struct CopyTransformsFromJob:IJobProcessComponentData<Position, Rotation, Boid>
+
+    [BurstCompile]
+    struct CopyTransformsFromJob :IJobProcessComponentData<Position, Rotation, Boid>
     {
         [NativeDisableParallelForRestriction]
         public NativeArray<Vector3> positions;
@@ -73,7 +101,8 @@ public class CubeJobSystem : JobComponentSystem
         }
         
     }
-    
+
+    [BurstCompile]
     struct CountNeighboursJob : IJobParallelFor
     {        
         [NativeDisableParallelForRestriction]    
@@ -104,16 +133,23 @@ public class CubeJobSystem : JobComponentSystem
     public NativeArray<Quaternion> rotations;
 
     int maxNeighbours = 20;
-    int maxBoids = 100;
+    int numBoids;
 
     float maxForce = 5;
-    float maxSpeed = 10;
+    float maxSpeed = 5;
+
+    Bootstrap bootstrap;
 
     protected override void OnCreateManager()
     {
-        neighbours = new NativeMultiHashMap<int, int>(maxBoids * maxNeighbours, Allocator.Persistent);
-        positions = new NativeArray<Vector3>(maxBoids, Allocator.Persistent);
-        rotations = new NativeArray<Quaternion>(maxBoids, Allocator.Persistent);
+        bootstrap = GameObject.FindObjectOfType<Bootstrap>();
+        numBoids = bootstrap.numBoids;
+
+
+        neighbours = new NativeMultiHashMap<int, int>(numBoids * maxNeighbours, Allocator.Persistent);
+        positions = new NativeArray<Vector3>(numBoids, Allocator.Persistent);
+        rotations = new NativeArray<Quaternion>(numBoids, Allocator.Persistent);
+
     }
 
     protected override void OnDestroyManager()
@@ -130,8 +166,7 @@ public class CubeJobSystem : JobComponentSystem
         // Copy entities to the native arrays 
         var ctj = new CopyTransformsToJob()
         {
-            positions = this.positions
-            ,
+            positions = this.positions,
             rotations = this.rotations
         };
         var ctjHandle = ctj.Schedule(this, inputDeps);
@@ -140,10 +175,8 @@ public class CubeJobSystem : JobComponentSystem
         neighbours.Clear();
         var cnj = new CountNeighboursJob()
         {
-            positions = this.positions
-            ,
-            rotations = this.rotations
-            ,
+            positions = this.positions,
+            rotations = this.rotations,
             neighbours = this.neighbours
         };
         var cnjHandle = cnj.Schedule(positions.Length, 10, ctjHandle);
@@ -155,16 +188,18 @@ public class CubeJobSystem : JobComponentSystem
             rotations = this.rotations,
             dT = Time.deltaTime,
             maxForce = this.maxForce,
-            maxSpeed = this.maxSpeed
+            maxSpeed = this.maxSpeed,
+            seekTarget = bootstrap.seekTarget,
+            damping = 0.01f,
+            banking = 0.1f
+
         };
         var boidHandle = boidJob.Schedule(this, cnjHandle);
-
 
         // Copy back to the entities
         var cfj = new CopyTransformsFromJob()
         {
-            positions = this.positions
-            ,
+            positions = this.positions,
             rotations = this.rotations
         };
         return cfj.Schedule(this, boidHandle);
