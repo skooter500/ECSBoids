@@ -56,7 +56,7 @@ public class Bootstrap : MonoBehaviour
 
 
         entityManager.SetComponentData(entity, new Boid() {boidId = i, mass = 1, neighbourDistance = 50});
-        
+        entityManager.SetComponentData(entity, new Seperation() { weight = 10 });
 
         entityManager.AddSharedComponentData(entity, renderMesh);
         return entity;
@@ -73,7 +73,8 @@ public class Bootstrap : MonoBehaviour
             typeof(Position),
             typeof(Rotation),
             typeof(Scale),
-            typeof(Boid)
+            typeof(Boid),
+            typeof(Seperation)
         );
 
         renderMesh = new RenderMesh();
