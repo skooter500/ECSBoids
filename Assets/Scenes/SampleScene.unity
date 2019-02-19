@@ -192,6 +192,7 @@ GameObject:
   - component: {fileID: 534669905}
   - component: {fileID: 534669904}
   - component: {fileID: 534669903}
+  - component: {fileID: 534669906}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -263,6 +264,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &534669906
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 534669902}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97ae5d00cb174a74b85b5cee17b07fda, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mainCamera: {fileID: 0}
+  speed: 50
+  lookSpeed: 150
+  allowPitch: 1
 --- !u!1 &578043100
 GameObject:
   m_ObjectHideFlags: 0
@@ -278,7 +295,6 @@ GameObject:
   - component: {fileID: 578043105}
   - component: {fileID: 578043104}
   - component: {fileID: 578043103}
-  - component: {fileID: 578043101}
   - component: {fileID: 578043102}
   m_Layer: 0
   m_Name: Cube (1)
@@ -287,20 +303,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &578043101
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 578043100}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 17b1b941137c14143bd417730576e252, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mesh: {fileID: 0}
-  material: {fileID: 0}
 --- !u!114 &578043102
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -579,9 +581,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1339738205}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f7243568c59d78c4e86d7d332ad1827e, type: 3}
+  m_Script: {fileID: 11500000, guid: 17b1b941137c14143bd417730576e252, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  material: {fileID: 2100000, guid: 207fcf41b80264d409b18e84ec1f55ad, type: 2}
+  numBoids: 1000
 --- !u!4 &1339738207
 Transform:
   m_ObjectHideFlags: 0
