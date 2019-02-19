@@ -1,4 +1,5 @@
-﻿using Unity.Burst;
+﻿using System;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -11,7 +12,7 @@ public class CubeJobSystem : JobComponentSystem
     [BurstCompile]
     struct SeperationJob: IJobProcessComponentData<Boid, Seperation>
     {
-        [NativeDisableParallelForRestriction]
+        [ReadOnly]
         public NativeMultiHashMap<int, int> neighbours;
 
         [NativeDisableParallelForRestriction]
@@ -19,7 +20,6 @@ public class CubeJobSystem : JobComponentSystem
 
         public void Execute(ref Boid b, ref Seperation s)
         {
-
             Vector3 force = Vector3.zero;
             NativeMultiHashMapIterator<int> iterator;
             int neighbourID;
@@ -27,7 +27,6 @@ public class CubeJobSystem : JobComponentSystem
             {
                 Vector3 toNeighbour = positions[b.boidId] - positions[neighbourID];
                 force += (Vector3.Normalize(toNeighbour) / toNeighbour.magnitude);
-
                 while(neighbours.TryGetNextValue(out neighbourID, ref iterator))
                 {
                     // The same as above
@@ -35,9 +34,9 @@ public class CubeJobSystem : JobComponentSystem
                     force += (Vector3.Normalize(toNeighbour) / toNeighbour.magnitude);
                 }
             }
-
-            s.force = force * s.weight;
+            s.force = Vector3.up * s.weight;
             b.force += s.force;
+
         }        
     }
 
