@@ -217,6 +217,7 @@ public class CubeJobSystem : JobComponentSystem
             positions = this.positions,
             rotations = this.rotations,
             neighbours = this.neighbours,
+            maxNeighbours = this.maxNeighbours,
             neighbourDistance = 50
 
         };
@@ -225,6 +226,7 @@ public class CubeJobSystem : JobComponentSystem
         var seperationJob = new SeperationJob()
         {
             positions = this.positions,
+            maxNeighbours = this.maxNeighbours,
             neighbours = this.neighbours
         };
 
