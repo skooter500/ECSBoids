@@ -30,7 +30,7 @@ public class CubeJobSystem : JobComponentSystem
                 Vector3 toNeighbour = positions[b.boidId] - positions[neighbourId];
                 force += (Vector3.Normalize(toNeighbour) / toNeighbour.magnitude);
             }
-            s.force = Vector3.up * s.weight;
+            s.force = force * s.weight;
             b.force += s.force;
         }        
     }
@@ -39,8 +39,6 @@ public class CubeJobSystem : JobComponentSystem
     [BurstCompile]
     struct BoidJob : IJobProcessComponentData<Boid>
     {
-        [ReadOnly] public float deltaTime;
-
         [NativeDisableParallelForRestriction]
         public NativeArray<Vector3> positions;
         

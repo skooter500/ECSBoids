@@ -54,7 +54,7 @@ public class Bootstrap : MonoBehaviour
 
 
         entityManager.SetComponentData(entity, new Boid() {boidId = i, mass = 1});
-        entityManager.SetComponentData(entity, new Seperation() { weight = 10 });
+        entityManager.SetComponentData(entity, new Seperation() { weight = 1 });
 
         entityManager.AddSharedComponentData(entity, renderMesh);
         return entity;
@@ -81,7 +81,7 @@ public class Bootstrap : MonoBehaviour
 
         for (int i = 0; i < numBoids; i++)
         {
-            Vector3 pos = Random.insideUnitSphere * 100;
+            Vector3 pos = Random.insideUnitSphere * 20;
             CreateCube(transform.position + pos, Quaternion.identity, i);
         }
     
