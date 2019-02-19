@@ -85,7 +85,8 @@ public class Bootstrap : MonoBehaviour
             typeof(Rotation),
             typeof(Scale),
             typeof(Boid),
-            typeof(Seperation)
+            typeof(Seperation),
+            typeof(Wander)
         );
 
         renderMesh = new RenderMesh();
