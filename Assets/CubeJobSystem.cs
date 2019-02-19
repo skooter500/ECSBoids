@@ -44,7 +44,6 @@ public class CubeJobSystem : JobComponentSystem
         }
         
     }
-    /*
     struct CountNeighboursJob : IJobParallelFor
     {        
         [NativeDisableParallelForRestriction]
