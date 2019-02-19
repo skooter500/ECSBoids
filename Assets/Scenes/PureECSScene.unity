@@ -213,7 +213,7 @@ MonoBehaviour:
   mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   material: {fileID: 2100000, guid: 207fcf41b80264d409b18e84ec1f55ad, type: 2}
   seekTarget: {x: 0, y: 0, z: 0}
-  numBoids: 1
+  numBoids: 100
 --- !u!4 &522459866
 Transform:
   m_ObjectHideFlags: 0

@@ -13,7 +13,8 @@ public struct Boid:IComponentData
     public Vector3  up;
     
     public Vector3  acceleration;
-    public float mass;    
+    public float mass;
+    public int neighbourCount;
 }
 
 public struct Seperation:IComponentData

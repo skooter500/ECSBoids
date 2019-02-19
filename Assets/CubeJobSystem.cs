@@ -13,30 +13,25 @@ public class CubeJobSystem : JobComponentSystem
     struct SeperationJob: IJobProcessComponentData<Boid, Seperation>
     {
         [ReadOnly]
-        public NativeMultiHashMap<int, int> neighbours;
+        public NativeArray<int> neighbours;
 
         [NativeDisableParallelForRestriction]
         public NativeArray<Vector3> positions;
 
+        public int maxNeighbours;
+
         public void Execute(ref Boid b, ref Seperation s)
         {
             Vector3 force = Vector3.zero;
-            NativeMultiHashMapIterator<int> iterator;
-            int neighbourID;
-            if (neighbours.TryGetFirstValue(b.boidId, out neighbourID, out iterator))
+            int neighbourStartIndex = maxNeighbours * b.boidId;
+            for(int i = 0; i < b.neighbourCount; i ++)
             {
-                Vector3 toNeighbour = positions[b.boidId] - positions[neighbourID];
+                int neighbourId = neighbours[neighbourStartIndex + i];
+                Vector3 toNeighbour = positions[b.boidId] - positions[neighbourId];
                 force += (Vector3.Normalize(toNeighbour) / toNeighbour.magnitude);
-                while(neighbours.TryGetNextValue(out neighbourID, ref iterator))
-                {
-                    // The same as above
-                    toNeighbour = positions[b.boidId] - positions[neighbourID];
-                    force += (Vector3.Normalize(toNeighbour) / toNeighbour.magnitude);
-                }
             }
             s.force = Vector3.up * s.weight;
             b.force += s.force;
-
         }        
     }
 
@@ -135,36 +130,47 @@ public class CubeJobSystem : JobComponentSystem
     }
 
     [BurstCompile]
-    struct CountNeighboursJob : IJobParallelFor
+    struct CountNeighboursJob : IJobProcessComponentData<Boid>
     {        
         [NativeDisableParallelForRestriction]    
-        public NativeMultiHashMap<int, int> neighbours;
-        [NativeDisableParallelForRestriction]
+        public NativeArray<int> neighbours;
 
-        public NativeArray<Vector3> positions;        
+        [NativeDisableParallelForRestriction]
+        public NativeArray<Vector3> positions;
+        
         [NativeDisableParallelForRestriction]
         public NativeArray<Quaternion> rotations;
+
         public float neighbourDistance;
-        public void Execute(int index)
+        public int maxNeighbours;
+        public void Execute(ref Boid b)
         {
+            int neighbourStartIndex = maxNeighbours * b.boidId;
+            int neighbourCount = 0;
             for (int i = 0; i < positions.Length; i++)
             {
-                if (i != index)
+                if (i != b.boidId)
                 {
-                    if (Vector3.Distance(positions[index], positions[i]) < neighbourDistance)
+                    if (Vector3.Distance(positions[b.boidId], positions[i]) < neighbourDistance)
                     {
-                        neighbours.Add(index, i);
+                        neighbours[neighbourStartIndex + neighbourCount] = i;
+                        neighbourCount++;
+                        if (neighbourCount == maxNeighbours)
+                        {
+                            break;
+                        }
                     }
                 }
             }
+            b.neighbourCount = neighbourCount;
         }
     }
     
-    NativeMultiHashMap<int, int> neighbours;
+    NativeArray<int> neighbours;
     public NativeArray<Vector3> positions;
     public NativeArray<Quaternion> rotations;
 
-    int maxNeighbours = 20;
+    int maxNeighbours = 50;
     int numBoids;
 
     float maxForce = 5;
@@ -178,7 +184,8 @@ public class CubeJobSystem : JobComponentSystem
         numBoids = bootstrap.numBoids;
 
 
-        neighbours = new NativeMultiHashMap<int, int>(numBoids * maxNeighbours, Allocator.Persistent);
+        //neighbours = new NativeMultiHashMap<int, int>(10000, Allocator.Persistent);
+        neighbours = new NativeArray<int>(10000, Allocator.Persistent);
         positions = new NativeArray<Vector3>(numBoids, Allocator.Persistent);
         rotations = new NativeArray<Quaternion>(numBoids, Allocator.Persistent);
 
@@ -204,7 +211,7 @@ public class CubeJobSystem : JobComponentSystem
         var ctjHandle = ctj.Schedule(this, inputDeps);
 
         // Count Neigthbours
-        neighbours.Clear();
+        
         var cnj = new CountNeighboursJob()
         {
             positions = this.positions,
@@ -213,7 +220,7 @@ public class CubeJobSystem : JobComponentSystem
             neighbourDistance = 50
 
         };
-        var cnjHandle = cnj.Schedule(positions.Length, 10, ctjHandle);
+        var cnjHandle = cnj.Schedule(this, ctjHandle);
 
         var seperationJob = new SeperationJob()
         {
