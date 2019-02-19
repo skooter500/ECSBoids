@@ -23,6 +23,17 @@ public struct Seperation:IComponentData
     public float weight;
 }
 
+public struct Wander : IComponentData
+{
+    public Vector3 force;
+    public float weight;
+
+    public float distance;
+    public float radius;
+    public float jitter;
+    public Vector3 target;
+}
+
 public class Bootstrap : MonoBehaviour
 {
     private EntityArchetype cubeArchitype;
@@ -55,6 +66,8 @@ public class Bootstrap : MonoBehaviour
 
         entityManager.SetComponentData(entity, new Boid() {boidId = i, mass = 1});
         entityManager.SetComponentData(entity, new Seperation() { weight = 1 });
+        entityManager.SetComponentData(entity, new Wander() { weight = 1, distance = 15
+            , radius = 10, jitter = 100, target = Random.insideUnitSphere * 10 });
 
         entityManager.AddSharedComponentData(entity, renderMesh);
         return entity;

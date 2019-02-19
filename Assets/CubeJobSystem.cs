@@ -35,6 +35,27 @@ public class CubeJobSystem : JobComponentSystem
         }        
     }
 
+    [BurstCompile]
+    struct WanderJob : IJobProcessComponentData<Boid, Wander, Position, Rotation>
+    {
+        public float dT;
+        public void Execute(ref Boid b, ref Wander w, ref Position p, ref Rotation r)
+        {
+            Vector3 disp = w.jitter * UnityEngine.Random.insideUnitSphere * dT;
+            w.target += disp;
+            w.target.Normalize();
+            w.target *= w.radius;
+
+            Vector3 localTarget = (Vector3.forward * w.distance) + w.target;
+
+            Quaternion q = r.Value;
+            Vector3 pos = p.Value;
+            Vector3 worldTarget = (q * localTarget) + pos;
+            w.force = (worldTarget - pos) * w.weight;
+            b.force += w.force;
+        }
+    }
+
 
     [BurstCompile]
     struct BoidJob : IJobProcessComponentData<Boid>
@@ -229,7 +250,14 @@ public class CubeJobSystem : JobComponentSystem
         };
 
         var sjHandle = seperationJob.Schedule(this, cnjHandle);
-        
+
+        var wanderJob = new WanderJob()
+        {
+            dT = Time.deltaTime
+        };
+
+        var wjHandle = wanderJob.Schedule(this, sjHandle);
+
         // Integrate the forces
         var boidJob = new BoidJob()
         {
@@ -243,7 +271,7 @@ public class CubeJobSystem : JobComponentSystem
             banking = 0.1f
 
         };
-        var boidHandle = boidJob.Schedule(this, sjHandle);
+        var boidHandle = boidJob.Schedule(this, wjHandle);
 
         // Copy back to the entities
         var cfj = new CopyTransformsFromJob()
