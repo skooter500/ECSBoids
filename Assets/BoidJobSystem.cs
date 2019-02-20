@@ -7,7 +7,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-public class CubeJobSystem : JobComponentSystem
+public class BoidJobSystem : JobComponentSystem
 {
     [BurstCompile]
     struct SeperationJob: IJobProcessComponentData<Boid, Seperation>
@@ -39,9 +39,10 @@ public class CubeJobSystem : JobComponentSystem
     struct WanderJob : IJobProcessComponentData<Boid, Wander, Position, Rotation>
     {
         public float dT;
+        public Unity.Mathematics.Random random;
         public void Execute(ref Boid b, ref Wander w, ref Position p, ref Rotation r)
         {
-            Vector3 disp = w.jitter * UnityEngine.Random.insideUnitSphere * dT;
+            Vector3 disp = w.jitter * random.NextFloat3Direction() * dT;
             w.target += disp;
             w.target.Normalize();
             w.target *= w.radius;
@@ -251,9 +252,12 @@ public class CubeJobSystem : JobComponentSystem
 
         var sjHandle = seperationJob.Schedule(this, cnjHandle);
 
+        var ran = new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, 100000));
         var wanderJob = new WanderJob()
         {
-            dT = Time.deltaTime
+            dT = Time.deltaTime,
+            random = ran
+
         };
 
         var wjHandle = wanderJob.Schedule(this, sjHandle);
