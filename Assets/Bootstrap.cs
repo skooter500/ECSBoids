@@ -14,10 +14,25 @@ public struct Boid:IComponentData
     
     public Vector3  acceleration;
     public float mass;
-    public int neighbourCount;
+    public float maxSpeed;
+    public float maxForce;
+    public float weight;
+    public int taggedCount;
 }
 
 public struct Seperation:IComponentData
+{
+    public Vector3 force;
+    public float weight;
+}
+
+public struct Cohesion : IComponentData
+{
+    public Vector3 force;
+    public float weight;
+}
+
+public struct Alignment : IComponentData
 {
     public Vector3 force;
     public float weight;
@@ -64,12 +79,15 @@ public class Bootstrap : MonoBehaviour
         entityManager.SetComponentData(entity, s);
 
 
-        entityManager.SetComponentData(entity, new Boid() {boidId = i, mass = 1});
+        entityManager.SetComponentData(entity, new Boid() {boidId = i, mass = 1, maxSpeed = 100, maxForce = 400, weight = 200});
         entityManager.SetComponentData(entity, new Seperation() { weight = 1 });
-        entityManager.SetComponentData(entity, new Wander() { weight = 1, distance = 15
-            , radius = 10, jitter = 100, target = Random.insideUnitSphere * 10 });
+        entityManager.SetComponentData(entity, new Alignment() { weight = 1 });
+        entityManager.SetComponentData(entity, new Cohesion() { weight = 2 });
+        entityManager.SetComponentData(entity, new Wander() { weight = 1, distance =2
+            , radius = 1.2f, jitter = 80, target = Random.insideUnitSphere * 10 });
 
         entityManager.AddSharedComponentData(entity, renderMesh);
+
         return entity;
     }
 
@@ -86,6 +104,8 @@ public class Bootstrap : MonoBehaviour
             typeof(Scale),
             typeof(Boid),
             typeof(Seperation),
+            typeof(Cohesion),
+            typeof(Alignment),
             typeof(Wander)
         );
 
