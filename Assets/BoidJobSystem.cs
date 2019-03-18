@@ -31,7 +31,6 @@ public class BoidJobSystem : JobComponentSystem
                 force += (Vector3.Normalize(toNeighbour) / toNeighbour.magnitude);
             }
             s.force = force * s.weight;
-            b.force += s.force;
         }        
     }
 
@@ -66,7 +65,6 @@ public class BoidJobSystem : JobComponentSystem
             }
 
             c.force = force * c.weight;
-            b.force += c.force;
         }
     }
 
@@ -102,7 +100,6 @@ public class BoidJobSystem : JobComponentSystem
             }
 
             a.force = force * a.weight;
-            b.force += a.force;
         }
     }
 
@@ -124,13 +121,12 @@ public class BoidJobSystem : JobComponentSystem
             Vector3 pos = p.Value;
             Vector3 worldTarget = (q * localTarget) + pos;
             w.force = (worldTarget - pos) * w.weight;
-            b.force += w.force;
         }
     }
 
 
     [BurstCompile]
-    struct BoidJob : IJobProcessComponentData<Boid>
+    struct BoidJob : IJobProcessComponentData<Boid, Seperation, Alignment, Cohesion, Wander>
     {
         [NativeDisableParallelForRestriction]
         public NativeArray<Vector3> positions;
@@ -153,7 +149,12 @@ public class BoidJobSystem : JobComponentSystem
             return desired - b.velocity; 
         }
 
-        public void Execute(ref Boid b)
+        public Vector3 Calcuate()
+        {
+
+        }
+
+        public void Execute(ref Boid b, ref Seperation s, ref Alignment a, ref Cohesion c, ref Wander w)
         {
             /*
             Vector3 force = Seek(Vector3.zero, ref  b);
@@ -166,6 +167,8 @@ public class BoidJobSystem : JobComponentSystem
             }
             */
 
+            b.force = c.force * b.weight;
+            b.force = Vector3.ClampMagnitude(b.force, b.maxForce);
             Vector3 newAcceleration = (b.force * b.weight) / b.mass;
             b.acceleration = Vector3.Lerp(b.acceleration, newAcceleration, dT);
             b.velocity += b.acceleration * dT;
