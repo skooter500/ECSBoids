@@ -153,6 +153,10 @@ public class BoidJobSystem : JobComponentSystem
             return desired - b.velocity; 
         }
 
+        public Vector3 AccumulateForces()
+        {
+        }
+
         public void Execute(ref Boid b)
         {
             /*
