@@ -84,7 +84,7 @@ public class Bootstrap : MonoBehaviour
         entityManager.SetComponentData(entity, new Alignment() { weight = 1 });
         entityManager.SetComponentData(entity, new Cohesion() { weight = 2 });
         entityManager.SetComponentData(entity, new Wander() { weight = 1, distance =2
-            , radius = 1.2f, jitter = 80, target = Random.insideUnitSphere * 10 });
+            , radius = 1.2f, jitter = 80, target = Random.insideUnitSphere * 1.2f });
 
         entityManager.AddSharedComponentData(entity, renderMesh);
 
