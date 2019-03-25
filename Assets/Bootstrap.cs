@@ -66,7 +66,7 @@ public class Bootstrap : MonoBehaviour
 
     public Vector3 seekTarget = Vector3.zero;
 
-    Entity CreateCube(Vector3 pos, Quaternion q, int i)
+    Entity CreateBoid(Vector3 pos, Quaternion q, int i)
     {
         Entity entity = entityManager.CreateEntity(cubeArchitype);
 
@@ -80,7 +80,7 @@ public class Bootstrap : MonoBehaviour
         entityManager.SetComponentData(entity, r);
 
         Scale s = new Scale();
-        s.Value = new Vector3(1, 1, 3);
+        s.Value = new Vector3(2, 2, 6);
 
         entityManager.SetComponentData(entity, s);
 
@@ -101,6 +101,9 @@ public class Bootstrap : MonoBehaviour
     public int numBoids = 100;
     public float radius = 500;
     public float neighbourDistance = 20;
+
+    [Range(0.0f, 2.0f)]
+    public float speed = 1.0f;
 
     // Start is called before the first frame update
     void Start()
@@ -126,7 +129,7 @@ public class Bootstrap : MonoBehaviour
         for (int i = 0; i < numBoids; i++)
         {
             Vector3 pos = Random.insideUnitSphere * radius;
-            CreateCube(transform.position + pos, Quaternion.identity, i);
+            CreateBoid(transform.position + pos, Quaternion.identity, i);
         }
     
     }

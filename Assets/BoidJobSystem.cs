@@ -396,7 +396,7 @@ public class BoidJobSystem : JobComponentSystem
         var ran = new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, 100000));
         var wanderJob = new WanderJob()
         {
-            dT = Time.deltaTime,
+            dT = Time.deltaTime * bootstrap.speed,
             random = ran
         };
 
@@ -416,9 +416,9 @@ public class BoidJobSystem : JobComponentSystem
         {
             positions = this.positions,
             rotations = this.rotations,
-            dT = Time.deltaTime,
+            dT = Time.deltaTime * bootstrap.speed,
             damping = 0.01f,
-            banking = 0.1f
+            banking = 0.01f
         };
         var boidHandle = boidJob.Schedule(this, constrainHandle);
 
