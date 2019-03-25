@@ -89,7 +89,7 @@ public class Bootstrap : MonoBehaviour
         entityManager.SetComponentData(entity, r);
 
         Scale s = new Scale();
-        s.Value = new Vector3(4, 4, 10);
+        s.Value = new Vector3(2, 4, 10);
 
         entityManager.SetComponentData(entity, s);
 
