@@ -35,6 +35,26 @@ public class BoidJobSystem : JobComponentSystem
     }
 
     [BurstCompile]
+    struct ConstrainJob : IJobProcessComponentData<Boid, Constrain>
+    {
+        [NativeDisableParallelForRestriction]
+        public NativeArray<Vector3> positions;
+        public Vector3 centre;
+        public float radius;
+
+        public void Execute(ref Boid b, ref Constrain c)
+        {
+            Vector3 force = Vector3.zero;
+            Vector3 toTarget = positions[b.boidId] - centre;
+            if (toTarget.magnitude > radius)
+            {
+                force = Vector3.Normalize(toTarget) * (radius - toTarget.magnitude);
+            }
+            c.force = force * c.weight;
+        }
+    }
+
+    [BurstCompile]
     struct CohesionJob : IJobProcessComponentData<Boid, Cohesion>
     {
         [ReadOnly]
@@ -126,7 +146,7 @@ public class BoidJobSystem : JobComponentSystem
 
 
     [BurstCompile]
-    struct BoidJob : IJobProcessComponentData<Boid, Seperation, Alignment, Cohesion, Wander>
+    struct BoidJob : IJobProcessComponentData<Boid, Seperation, Alignment, Cohesion, Wander, Constrain>
     {
         [NativeDisableParallelForRestriction]
         public NativeArray<Vector3> positions;
@@ -139,17 +159,7 @@ public class BoidJobSystem : JobComponentSystem
 
         public float dT;        
 
-        public Vector3 seekTarget;
-
-        public Vector3 Seek(Vector3 target, ref Boid b)
-        {
-            Vector3 toTarget = target - positions[b.boidId];
-
-            Vector3 desired = toTarget.normalized * b.maxSpeed;
-            return desired - b.velocity; 
-        }
-
-        public Vector3 AccululateForces(ref Boid b, ref Seperation s, ref Alignment a, ref Cohesion c, ref Wander w)
+        public Vector3 AccululateForces(ref Boid b, ref Seperation s, ref Alignment a, ref Cohesion c, ref Wander w, ref Constrain con)
         {
             Vector3 force = Vector3.zero;
 
@@ -172,14 +182,21 @@ public class BoidJobSystem : JobComponentSystem
                 force = Vector3.ClampMagnitude(force, b.maxForce);
                 return force;
             }
-            
+
             force += w.force;
             if (force.magnitude >= b.maxForce)
             {
                 force = Vector3.ClampMagnitude(force, b.maxForce);
                 return force;
             }
-            
+
+            force += con.force;
+            if (force.magnitude >= b.maxForce)
+            {
+                force = Vector3.ClampMagnitude(force, b.maxForce);
+                return force;
+            }
+
 
             //NativeArray<Vector3> forces;
 
@@ -206,20 +223,9 @@ public class BoidJobSystem : JobComponentSystem
             return force;
         }
 
-        public void Execute(ref Boid b, ref Seperation s, ref Alignment a, ref Cohesion c, ref Wander w)
+        public void Execute(ref Boid b, ref Seperation s, ref Alignment a, ref Cohesion c, ref Wander w, ref Constrain con)
         {
-            /*
-            Vector3 force = Seek(Vector3.zero, ref  b);
-            b.acceleration = force / b.mass;
-            b.velocity += b.acceleration * dT;
-            positions[b.boidId] += b.velocity * dT;
-            if (b.velocity.magnitude > float.Epsilon)
-            {
-                rotations[b.boidId] = Quaternion.LookRotation(b.velocity.normalized);
-            }
-            */
-
-            b.force = AccululateForces(ref b, ref s, ref a, ref c, ref w) * b.weight;
+            b.force = AccululateForces(ref b, ref s, ref a, ref c, ref w, ref con) * b.weight;
             b.force = Vector3.ClampMagnitude(b.force, b.maxForce);
             Vector3 newAcceleration = (b.force * b.weight) / b.mass;
             b.acceleration = Vector3.Lerp(b.acceleration, newAcceleration, dT);
@@ -314,20 +320,18 @@ public class BoidJobSystem : JobComponentSystem
     public NativeArray<Quaternion> rotations;
 
     int maxNeighbours = 50;
-    int numBoids;
 
     Bootstrap bootstrap;
 
     protected override void OnCreateManager()
     {
         bootstrap = GameObject.FindObjectOfType<Bootstrap>();
-        numBoids = bootstrap.numBoids;
 
-
-        //neighbours = new NativeMultiHashMap<int, int>(10000, Allocator.Persistent);
-        neighbours = new NativeArray<int>(numBoids * maxNeighbours, Allocator.Persistent);
-        positions = new NativeArray<Vector3>(numBoids, Allocator.Persistent);
-        rotations = new NativeArray<Quaternion>(numBoids, Allocator.Persistent);
+        // Want to use this but it hangs when I try and access it
+        // neighbours = new NativeMultiHashMap<int, int>(10000, Allocator.Persistent);
+        neighbours = new NativeArray<int>(bootstrap.numBoids * maxNeighbours, Allocator.Persistent);
+        positions = new NativeArray<Vector3>(bootstrap.numBoids, Allocator.Persistent);
+        rotations = new NativeArray<Quaternion>(bootstrap.numBoids, Allocator.Persistent);
 
     }
 
@@ -356,7 +360,7 @@ public class BoidJobSystem : JobComponentSystem
             rotations = this.rotations,
             neighbours = this.neighbours,
             maxNeighbours = this.maxNeighbours,
-            neighbourDistance = 10
+            neighbourDistance = bootstrap.neighbourDistance
 
         };
         var cnjHandle = cnj.Schedule(this, ctjHandle);
@@ -398,18 +402,25 @@ public class BoidJobSystem : JobComponentSystem
 
         var wjHandle = wanderJob.Schedule(this, cjHandle);
 
+        var constrainJob = new ConstrainJob()
+        {
+            positions = this.positions,
+            centre = bootstrap.transform.position,
+            radius = bootstrap.radius
+        };
+
+        var constrainHandle = constrainJob.Schedule(this, wjHandle);
+
         // Integrate the forces
         var boidJob = new BoidJob()
         {
             positions = this.positions,
             rotations = this.rotations,
             dT = Time.deltaTime,
-            seekTarget = bootstrap.seekTarget,
             damping = 0.01f,
             banking = 0.1f
-
         };
-        var boidHandle = boidJob.Schedule(this, wjHandle);
+        var boidHandle = boidJob.Schedule(this, constrainHandle);
 
         // Copy back to the entities
         var cfj = new CopyTransformsFromJob()
@@ -419,15 +430,4 @@ public class BoidJobSystem : JobComponentSystem
         };
         return cfj.Schedule(this, boidHandle);
     }
-
-    /*
-    [Inject] CubeGroup cubeGroup;
-    struct CubeGroup
-    {
-        public int Length;
-        ComponentDataArray<Position> positionCDA;
-        ComponentDataArray<Rotation> rotationCDA;
-        
-    }
-    */
 }
