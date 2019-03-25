@@ -17,7 +17,7 @@ public class BoidJobSystem : JobComponentSystem
 
         [NativeDisableParallelForRestriction]
         public NativeArray<Vector3> positions;
-
+        public float weight;
         public int maxNeighbours;
 
         public void Execute(ref Boid b, ref Seperation s)
@@ -30,7 +30,7 @@ public class BoidJobSystem : JobComponentSystem
                 Vector3 toNeighbour = positions[b.boidId] - positions[neighbourId];
                 force += (Vector3.Normalize(toNeighbour) / toNeighbour.magnitude);
             }
-            s.force = force * s.weight;
+            s.force = force * weight;
         }        
     }
 
@@ -41,6 +41,7 @@ public class BoidJobSystem : JobComponentSystem
         public NativeArray<Vector3> positions;
         public Vector3 centre;
         public float radius;
+        public float weight;
 
         public void Execute(ref Boid b, ref Constrain c)
         {
@@ -50,7 +51,33 @@ public class BoidJobSystem : JobComponentSystem
             {
                 force = Vector3.Normalize(toTarget) * (radius - toTarget.magnitude);
             }
-            c.force = force * c.weight;
+            c.force = force * weight;
+        }
+    }
+
+    [BurstCompile]
+    struct FleeJob : IJobProcessComponentData<Boid, Flee>
+    {
+        [NativeDisableParallelForRestriction]
+        public NativeArray<Vector3> positions;
+        public Vector3 enemyPos;
+        public float distance;
+        public float weight;
+
+        public void Execute(ref Boid b, ref Flee f)
+        {
+            Vector3 desired = enemyPos - positions[b.boidId];
+            if (desired.magnitude <= distance)
+            {
+                desired.Normalize();
+                desired *= b.maxSpeed;
+                b.fleeForce = (b.velocity - desired) * weight;
+            }
+            else
+            {
+                b.fleeForce = Vector3.zero;
+            }
+
         }
     }
 
@@ -64,6 +91,7 @@ public class BoidJobSystem : JobComponentSystem
         public NativeArray<Vector3> positions;
 
         public int maxNeighbours;
+        public float weight;
 
         public void Execute(ref Boid b, ref Cohesion c)
         {
@@ -84,7 +112,7 @@ public class BoidJobSystem : JobComponentSystem
                 force = (desired - b.velocity).normalized;
             }
 
-            c.force = force * c.weight;
+            c.force = force * weight;
         }
     }
 
@@ -99,7 +127,7 @@ public class BoidJobSystem : JobComponentSystem
 
         [NativeDisableParallelForRestriction]
         public NativeArray<Quaternion> rotations;
-
+        public float weight;
         public int maxNeighbours;
 
         public void Execute(ref Boid b, ref Alignment a)
@@ -119,7 +147,7 @@ public class BoidJobSystem : JobComponentSystem
                 force = desired - (rotations[b.boidId] * Vector3.forward);
             }
 
-            a.force = force * a.weight;
+            a.force = force * weight;
         }
     }
 
@@ -128,6 +156,8 @@ public class BoidJobSystem : JobComponentSystem
     {
         public float dT;
         public Unity.Mathematics.Random random;
+        public float weight;
+
         public void Execute(ref Boid b, ref Wander w, ref Position p, ref Rotation r)
         {
             Vector3 disp = w.jitter * random.NextFloat3Direction() * dT;
@@ -140,7 +170,7 @@ public class BoidJobSystem : JobComponentSystem
             Quaternion q = r.Value;
             Vector3 pos = p.Value;
             Vector3 worldTarget = (q * localTarget) + pos;
-            w.force = (worldTarget - pos) * w.weight;
+            w.force = (worldTarget - pos) * weight;
         }
     }
 
@@ -162,6 +192,14 @@ public class BoidJobSystem : JobComponentSystem
         public Vector3 AccululateForces(ref Boid b, ref Seperation s, ref Alignment a, ref Cohesion c, ref Wander w, ref Constrain con)
         {
             Vector3 force = Vector3.zero;
+
+            force += b.fleeForce;
+            if (force.magnitude >= b.maxForce)
+            {
+                force = Vector3.ClampMagnitude(force, b.maxForce);
+                return force;
+            }
+
 
             force += s.force;
             if (force.magnitude >= b.maxForce)
@@ -197,6 +235,7 @@ public class BoidJobSystem : JobComponentSystem
                 return force;
             }
 
+            
 
             //NativeArray<Vector3> forces;
 
@@ -369,7 +408,8 @@ public class BoidJobSystem : JobComponentSystem
         {
             positions = this.positions,
             maxNeighbours = this.maxNeighbours,
-            neighbours = this.neighbours
+            neighbours = this.neighbours,
+            weight = bootstrap.seperationWeight
         };
 
         var sjHandle = seperationJob.Schedule(this, cnjHandle);
@@ -379,7 +419,8 @@ public class BoidJobSystem : JobComponentSystem
             positions = this.positions,
             rotations = this.rotations,
             maxNeighbours = this.maxNeighbours,
-            neighbours = this.neighbours
+            neighbours = this.neighbours,
+            weight = bootstrap.alignmentWeight
         };
 
         var ajHandle = alignmentJob.Schedule(this, sjHandle);
@@ -388,7 +429,9 @@ public class BoidJobSystem : JobComponentSystem
         {
             positions = this.positions,
             maxNeighbours = this.maxNeighbours,
-            neighbours = this.neighbours
+            neighbours = this.neighbours,
+            weight = bootstrap.cohesionWeight
+
         };
 
         var cjHandle = cohesionJob.Schedule(this, ajHandle);
@@ -397,7 +440,9 @@ public class BoidJobSystem : JobComponentSystem
         var wanderJob = new WanderJob()
         {
             dT = Time.deltaTime * bootstrap.speed,
-            random = ran
+            random = ran,
+            weight = bootstrap.wanderWeight
+
         };
 
         var wjHandle = wanderJob.Schedule(this, cjHandle);
@@ -406,10 +451,22 @@ public class BoidJobSystem : JobComponentSystem
         {
             positions = this.positions,
             centre = bootstrap.transform.position,
-            radius = bootstrap.radius
+            radius = bootstrap.radius,
+            weight = bootstrap.constrainWeight
         };
 
         var constrainHandle = constrainJob.Schedule(this, wjHandle);
+
+        var fleeJob = new FleeJob()
+        {
+            positions = this.positions,
+            enemyPos = Camera.main.transform.position,
+            distance = bootstrap.fleeDistance,
+            weight = bootstrap.fleeWeight
+        };
+
+        var fleeHandle = fleeJob.Schedule(this, constrainHandle);
+        
 
         // Integrate the forces
         var boidJob = new BoidJob()
@@ -420,7 +477,7 @@ public class BoidJobSystem : JobComponentSystem
             damping = 0.01f,
             banking = 0.01f
         };
-        var boidHandle = boidJob.Schedule(this, constrainHandle);
+        var boidHandle = boidJob.Schedule(this, fleeHandle);
 
         // Copy back to the entities
         var cfj = new CopyTransformsFromJob()

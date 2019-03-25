@@ -18,36 +18,38 @@ public struct Boid:IComponentData
     public float maxForce;
     public float weight;
     public int taggedCount;
+
+    public Vector3 fleeForce; // Have to put this here because there is a limit to the number of components in IJobProcessComponentData
 }
 
-public struct Seperation:IComponentData
+public struct Flee : IComponentData
 {
     public Vector3 force;
-    public float weight;
+}
+
+public struct Seperation : IComponentData
+{
+    public Vector3 force;
 }
 
 public struct Constrain : IComponentData
 {
     public Vector3 force;
-    public float weight;
 }
 
 public struct Cohesion : IComponentData
 {
     public Vector3 force;
-    public float weight;
 }
 
 public struct Alignment : IComponentData
 {
     public Vector3 force;
-    public float weight;
 }
 
 public struct Wander : IComponentData
 {
     public Vector3 force;
-    public float weight;
 
     public float distance;
     public float radius;
@@ -64,7 +66,14 @@ public class Bootstrap : MonoBehaviour
     public Mesh mesh;
     public Material material;
 
-    public Vector3 seekTarget = Vector3.zero;
+    public float seperationWeight = 1.0f;
+    public float cohesionWeight = 2.0f;
+    public float alignmentWeight = 1.0f;
+    public float wanderWeight = 1.0f;
+    public float constrainWeight = 1.0f;
+
+    public float fleeWeight = 1.0f;
+    public float fleeDistance = 50;
 
     Entity CreateBoid(Vector3 pos, Quaternion q, int i)
     {
@@ -86,11 +95,12 @@ public class Bootstrap : MonoBehaviour
 
 
         entityManager.SetComponentData(entity, new Boid() {boidId = i, mass = 1, maxSpeed = 100, maxForce = 400, weight = 200});
-        entityManager.SetComponentData(entity, new Seperation() { weight = 1 });
-        entityManager.SetComponentData(entity, new Alignment() { weight = 1 });
-        entityManager.SetComponentData(entity, new Cohesion() { weight = 2 });
-        entityManager.SetComponentData(entity, new Constrain() { weight = 1 });
-        entityManager.SetComponentData(entity, new Wander() { weight = 1, distance =2
+        entityManager.SetComponentData(entity, new Seperation() );
+        entityManager.SetComponentData(entity, new Alignment() );
+        entityManager.SetComponentData(entity, new Cohesion() );
+        entityManager.SetComponentData(entity, new Constrain());
+        entityManager.SetComponentData(entity, new Flee());
+        entityManager.SetComponentData(entity, new Wander() { distance =2
             , radius = 1.2f, jitter = 80, target = Random.insideUnitSphere * 1.2f });
 
         entityManager.AddSharedComponentData(entity, renderMesh);
@@ -119,7 +129,8 @@ public class Bootstrap : MonoBehaviour
             typeof(Cohesion),
             typeof(Alignment),
             typeof(Wander),
-            typeof(Constrain)
+            typeof(Constrain),
+            typeof(Flee)
         );
 
         renderMesh = new RenderMesh();
@@ -134,12 +145,4 @@ public class Bootstrap : MonoBehaviour
     
     }
 
-    void Update()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            seekTarget = Camera.main.transform.position
-               + Camera.main.transform.forward * 200;
-        }
-    }
 }
