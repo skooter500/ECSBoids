@@ -274,7 +274,7 @@ public class BoidJobSystem : JobComponentSystem
 
             if (b.velocity.magnitude > 0)
             {
-                Vector3 tempUp = Vector3.Lerp(b.up, Vector3.up + (b.acceleration * banking), dT * 3.0f);
+                Vector3 tempUp = Vector3.Lerp(b.up, (Vector3.up) + (b.acceleration * banking), dT * 3.0f);
                 rotations[b.boidId] = Quaternion.LookRotation(b.velocity, tempUp);
                 b.up = rotations[b.boidId] * Vector3.up;
 

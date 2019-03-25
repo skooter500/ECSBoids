@@ -211,18 +211,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
-  material: {fileID: 2100000, guid: 207fcf41b80264d409b18e84ec1f55ad, type: 2}
-  seperationWeight: 1
+  material: {fileID: 2100000, guid: 3eed7dac13da17543a8dca75fb843ef2, type: 2}
+  seperationWeight: 4
   cohesionWeight: 2
   alignmentWeight: 1
   wanderWeight: 1
   constrainWeight: 1
-  fleeWeight: 0.5
-  fleeDistance: 50
+  fleeWeight: 1
+  fleeDistance: 100
   numBoids: 5000
   radius: 1000
   neighbourDistance: 50
-  speed: 0.5
+  speed: 1
 --- !u!4 &522459866
 Transform:
   m_ObjectHideFlags: 0
@@ -333,6 +333,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mainCamera: {fileID: 0}
-  speed: 50
-  lookSpeed: 150
+  speed: 200
+  lookSpeed: 500
   allowPitch: 1
