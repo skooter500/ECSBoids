@@ -156,7 +156,7 @@ public class Bootstrap : MonoBehaviour
     }
 
     public int numBoids = 100;
-    public float radius = 500;
+    public float radius = 2000;
     public float neighbourDistance = 20;
 
     [Range(0.0f, 10.0f)]
@@ -236,13 +236,13 @@ public class Bootstrap : MonoBehaviour
     IEnumerator Explosion()
     {
         radius = 10;
-        yield return new WaitForSeconds(10);
+        yield return new WaitForSeconds(20);
         radius = 1000;
         cohesionWeight = 0;
         neighbourDistance = 0;
         yield return new WaitForSeconds(10);
         cohesionWeight = 2;
-        neighbourDistance = 50;
+        neighbourDistance = 100;
     }
 
 }
