@@ -29,11 +29,39 @@ public class BoidJobSystem : JobComponentSystem
         public void Execute(ref Head h, ref Position p, ref Rotation r)
         {
             Vector3 pos = positions[h.boidId];
-            Vector3 up = rotations[h.boidId] * Vector3.up;
-            Quaternion q = Quaternion.AngleAxis(amplitude * Mathf.Sin(h.theta), up);
+            Vector3 up = Vector3.up;
+            Quaternion q = rotations[h.boidId] * Quaternion.AngleAxis(Mathf.Sin(h.theta) * amplitude, up);
             p.Value = pos + (q * Vector3.forward) * size;
-            r.Value = q; // ;
-            h.theta += frequency * dT * Mathf.PI * 2.0f;
+            r.Value = q;
+            h.theta += frequency * dT * Mathf.PI * 2.0f * speeds[h.boidId];
+        }
+    }
+
+    [BurstCompile]
+    struct TailJob : IJobProcessComponentData<Tail, Position, Rotation>
+    {
+        [NativeDisableParallelForRestriction]
+        public NativeArray<Vector3> positions;
+
+        [NativeDisableParallelForRestriction]
+        public NativeArray<Quaternion> rotations;
+
+        [NativeDisableParallelForRestriction]
+        public NativeArray<float> speeds;
+
+        public float amplitude;
+        public float frequency;
+        public float size;
+        public float dT;
+
+        public void Execute(ref Tail t, ref Position p, ref Rotation r)
+        {
+            Vector3 pos = positions[t.boidId];
+            Vector3 up = Vector3.up;
+            Quaternion q = rotations[t.boidId] * Quaternion.AngleAxis(Mathf.Sin(t.theta) * amplitude, up);
+            p.Value = pos - (q * Vector3.forward) * size;
+            r.Value = q;
+            t.theta += frequency * dT * Mathf.PI * 2.0f * speeds[t.boidId];
         }
     }
 
@@ -521,20 +549,33 @@ public class BoidJobSystem : JobComponentSystem
             positions = this.positions,
             rotations = this.rotations,
             speeds = this.speeds,
-            dT = Time.deltaTime, // * bootstrap.speed,
+            dT = Time.deltaTime * bootstrap.speed,
             amplitude = bootstrap.headAmplitude,
             frequency = bootstrap.animationFrequency,
             size = bootstrap.size
         };
 
-        var headHandle = headJob.Schedule(this, boidHandle);
-        
-        // Copy back to the entities
+        var headHandle = headJob.Schedule(this, boidHandle);// Animate the head and tail
+
+        var tailJob = new TailJob()
+        {
+            positions = this.positions,
+            rotations = this.rotations,
+            speeds = this.speeds,
+            dT = Time.deltaTime * bootstrap.speed,
+            amplitude = bootstrap.tailAmplitude,
+            frequency = bootstrap.animationFrequency,
+            size = bootstrap.size
+        };
+
+        var tailHandle = headJob.Schedule(this, headHandle);
+
+        // Copy back to the entities 
         var cfj = new CopyTransformsFromJob()
         {
             positions = this.positions,
             rotations = this.rotations
         };
-        return cfj.Schedule(this, headHandle);
+        return cfj.Schedule(this, tailHandle);
     }
 }

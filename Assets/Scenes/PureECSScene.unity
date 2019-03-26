@@ -219,8 +219,8 @@ MonoBehaviour:
   constrainWeight: 1
   fleeWeight: 5
   fleeDistance: 100
-  headAmplitude: 70
-  animationFrequency: 1
+  headAmplitude: 30
+  animationFrequency: 0.05
   numBoids: 5000
   radius: 1000
   neighbourDistance: 100

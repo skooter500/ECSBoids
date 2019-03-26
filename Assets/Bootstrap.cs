@@ -28,6 +28,12 @@ public struct Head : IComponentData
     public int boidId;
 }
 
+public struct Tail : IComponentData
+{
+    public float theta;
+    public int boidId;
+}
+
 public struct Flee : IComponentData
 {
     public Vector3 force;
@@ -67,9 +73,10 @@ public class Bootstrap : MonoBehaviour
 {
     private EntityArchetype boidArchitype;
     private EntityArchetype headArchitype;
+    private EntityArchetype tailArchitype;
     private EntityManager entityManager;
     
-    private RenderMesh renderMesh;
+    private RenderMesh bodyMesh;
     public Mesh mesh;
     public Material material;
 
@@ -82,7 +89,8 @@ public class Bootstrap : MonoBehaviour
     public float fleeWeight = 1.0f;
     public float fleeDistance = 50;
 
-    public float headAmplitude = 70;
+    public float headAmplitude = 20;
+    public float tailAmplitude = 30;
     public float animationFrequency = 1;
 
     Entity CreateBoid(Vector3 pos, Quaternion q, int i, float size)
@@ -114,7 +122,7 @@ public class Bootstrap : MonoBehaviour
         entityManager.SetComponentData(boidEntity, new Wander() { distance =2
             , radius = 1.2f, jitter = 80, target = Random.insideUnitSphere * 1.2f });
 
-        entityManager.AddSharedComponentData(boidEntity, renderMesh);
+        entityManager.AddSharedComponentData(boidEntity, bodyMesh);
 
         // Make the head
         Entity headEntity = entityManager.CreateEntity(headArchitype);
@@ -122,17 +130,27 @@ public class Bootstrap : MonoBehaviour
         Position headPosition = new Position();
         headPosition.Value = pos + (q * Vector3.forward) * size;
         entityManager.SetComponentData(headEntity, headPosition);
-
         Rotation headRotation = new Rotation();
         headRotation.Value = q;
         entityManager.SetComponentData(headEntity, headRotation);
-        entityManager.AddSharedComponentData(headEntity, renderMesh);
+        entityManager.AddSharedComponentData(headEntity, bodyMesh);
         entityManager.SetComponentData(headEntity, s);
 
         entityManager.SetComponentData(headEntity, new Head() { boidId = i});
-
-
         // End head
+
+        // Make the tail
+        Entity tailEntity = entityManager.CreateEntity(tailArchitype);
+        Position tailPosition = new Position();
+        tailPosition.Value = pos - (q * Vector3.forward) * size;
+        entityManager.SetComponentData(tailEntity, tailPosition);
+        Rotation tailRotation = new Rotation();
+        tailRotation.Value = q;
+        entityManager.SetComponentData(tailEntity, tailRotation);
+        entityManager.AddSharedComponentData(tailEntity, bodyMesh);
+        entityManager.SetComponentData(tailEntity, s);
+        entityManager.SetComponentData(tailEntity, new Tail() { boidId = i });
+        // End tail
 
         return boidEntity;
     }
@@ -169,10 +187,17 @@ public class Bootstrap : MonoBehaviour
             typeof(Head)
             );
 
+        tailArchitype = entityManager.CreateArchetype(
+                    typeof(Position),
+                    typeof(Rotation),
+                    typeof(Scale),
+                    typeof(Tail)
+                    );
 
-        renderMesh = new RenderMesh();
-        renderMesh.mesh = mesh;
-        renderMesh.material = material;
+
+        bodyMesh = new RenderMesh();
+        bodyMesh.mesh = mesh;
+        bodyMesh.material = material;
 
         for (int i = 0; i < numBoids; i++)
         {
