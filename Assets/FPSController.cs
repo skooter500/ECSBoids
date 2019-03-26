@@ -34,13 +34,14 @@ public class FPSController : MonoBehaviour
 
     void Pitch(float angle)
     {
+        /*
         float invcosTheta1 = Vector3.Dot(transform.forward, Vector3.up);
         float threshold = 0.95f;
         if ((angle > 0 && invcosTheta1 < (-threshold)) || (angle < 0 && invcosTheta1 > (threshold)))
         {
             return;
         }
-
+        */
         // A pitch is a rotation around the right vector
         Quaternion rot = Quaternion.AngleAxis(angle, transform.right);
 
