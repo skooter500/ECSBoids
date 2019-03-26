@@ -163,6 +163,22 @@ public class Bootstrap : MonoBehaviour
                 speed = 2;
             }
         }
+        if (Input.GetKey(KeyCode.Joystick1Button0))
+        {
+            StartCoroutine(Explosion());
+        }
+    }
+
+    IEnumerator Explosion()
+    {
+        radius = 10;
+        yield return new WaitForSeconds(10);
+        radius = 1000;
+        cohesionWeight = 0;
+        neighbourDistance = 0;
+        yield return new WaitForSeconds(10);
+        cohesionWeight = 2;
+        neighbourDistance = 50;
     }
 
 }
