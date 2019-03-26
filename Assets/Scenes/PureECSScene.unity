@@ -220,7 +220,8 @@ MonoBehaviour:
   fleeWeight: 5
   fleeDistance: 100
   headAmplitude: 30
-  animationFrequency: 0.05
+  tailAmplitude: 30
+  animationFrequency: 1
   numBoids: 5000
   radius: 1000
   neighbourDistance: 100

@@ -28,10 +28,14 @@ public class BoidJobSystem : JobComponentSystem
 
         public void Execute(ref Head h, ref Position p, ref Rotation r)
         {
-            Vector3 pos = positions[h.boidId];
             Vector3 up = Vector3.up;
             Quaternion q = rotations[h.boidId] * Quaternion.AngleAxis(Mathf.Sin(h.theta) * amplitude, up);
-            p.Value = pos + (q * Vector3.forward) * size;
+
+            // Calculate the center point of the head
+            Vector3 pos = positions[h.boidId] 
+                + rotations[h.boidId] * (Vector3.forward * size * 0.5f)
+                + q * (Vector3.forward * size * 0.5f);
+            p.Value = pos;
             r.Value = q;
             h.theta += frequency * dT * Mathf.PI * 2.0f * speeds[h.boidId];
         }
@@ -56,10 +60,13 @@ public class BoidJobSystem : JobComponentSystem
 
         public void Execute(ref Tail t, ref Position p, ref Rotation r)
         {
-            Vector3 pos = positions[t.boidId];
             Vector3 up = Vector3.up;
-            Quaternion q = rotations[t.boidId] * Quaternion.AngleAxis(Mathf.Sin(t.theta) * amplitude, up);
-            p.Value = pos - (q * Vector3.forward) * size;
+            Quaternion q = rotations[t.boidId] * Quaternion.AngleAxis(Mathf.Sin(-t.theta) * amplitude, up);
+            // Calculate the center point of the tail
+            Vector3 pos = positions[t.boidId]
+                - rotations[t.boidId] * (Vector3.forward * size * 0.5f)
+                - q * (Vector3.forward * size * 0.5f);
+            p.Value = pos;
             r.Value = q;
             t.theta += frequency * dT * Mathf.PI * 2.0f * speeds[t.boidId];
         }
@@ -568,7 +575,7 @@ public class BoidJobSystem : JobComponentSystem
             size = bootstrap.size
         };
 
-        var tailHandle = headJob.Schedule(this, headHandle);
+        var tailHandle = tailJob.Schedule(this, headHandle);
 
         // Copy back to the entities 
         var cfj = new CopyTransformsFromJob()
