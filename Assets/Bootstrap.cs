@@ -22,6 +22,12 @@ public struct Boid:IComponentData
     public Vector3 fleeForce; // Have to put this here because there is a limit to the number of components in IJobProcessComponentData
 }
 
+public struct Head : IComponentData
+{
+    public float theta;
+    public int boidId;
+}
+
 public struct Flee : IComponentData
 {
     public Vector3 force;
@@ -59,7 +65,8 @@ public struct Wander : IComponentData
 
 public class Bootstrap : MonoBehaviour
 {
-    private EntityArchetype cubeArchitype;
+    private EntityArchetype boidArchitype;
+    private EntityArchetype headArchitype;
     private EntityManager entityManager;
     
     private RenderMesh renderMesh;
@@ -75,9 +82,12 @@ public class Bootstrap : MonoBehaviour
     public float fleeWeight = 1.0f;
     public float fleeDistance = 50;
 
-    Entity CreateBoid(Vector3 pos, Quaternion q, int i)
+    public float headAmplitude = 70;
+    public float animationFrequency = 1;
+
+    Entity CreateBoid(Vector3 pos, Quaternion q, int i, float size)
     {
-        Entity entity = entityManager.CreateEntity(cubeArchitype);
+        Entity boidEntity = entityManager.CreateEntity(boidArchitype);
 
         Position p = new Position();
         p.Value = pos;
@@ -85,27 +95,46 @@ public class Bootstrap : MonoBehaviour
         Rotation r = new Rotation();
         r.Value = q;
 
-        entityManager.SetComponentData(entity, p);
-        entityManager.SetComponentData(entity, r);
+        entityManager.SetComponentData(boidEntity, p);
+        entityManager.SetComponentData(boidEntity, r);
 
         Scale s = new Scale();
-        s.Value = new Vector3(2, 4, 10);
+        s.Value = new Vector3(size * 0.5f, size, size);
+        //s.Value = new Vector3(2, 4, 10);
 
-        entityManager.SetComponentData(entity, s);
+        entityManager.SetComponentData(boidEntity, s);
 
 
-        entityManager.SetComponentData(entity, new Boid() {boidId = i, mass = 1, maxSpeed = 100, maxForce = 400, weight = 200});
-        entityManager.SetComponentData(entity, new Seperation() );
-        entityManager.SetComponentData(entity, new Alignment() );
-        entityManager.SetComponentData(entity, new Cohesion() );
-        entityManager.SetComponentData(entity, new Constrain());
-        entityManager.SetComponentData(entity, new Flee());
-        entityManager.SetComponentData(entity, new Wander() { distance =2
+        entityManager.SetComponentData(boidEntity, new Boid() {boidId = i, mass = 1, maxSpeed = 100, maxForce = 400, weight = 200});
+        entityManager.SetComponentData(boidEntity, new Seperation() );
+        entityManager.SetComponentData(boidEntity, new Alignment() );
+        entityManager.SetComponentData(boidEntity, new Cohesion() );
+        entityManager.SetComponentData(boidEntity, new Constrain());
+        entityManager.SetComponentData(boidEntity, new Flee());
+        entityManager.SetComponentData(boidEntity, new Wander() { distance =2
             , radius = 1.2f, jitter = 80, target = Random.insideUnitSphere * 1.2f });
 
-        entityManager.AddSharedComponentData(entity, renderMesh);
+        entityManager.AddSharedComponentData(boidEntity, renderMesh);
 
-        return entity;
+        // Make the head
+        Entity headEntity = entityManager.CreateEntity(headArchitype);
+
+        Position headPosition = new Position();
+        headPosition.Value = pos + (q * Vector3.forward) * size;
+        entityManager.SetComponentData(headEntity, headPosition);
+
+        Rotation headRotation = new Rotation();
+        headRotation.Value = q;
+        entityManager.SetComponentData(headEntity, headRotation);
+        entityManager.AddSharedComponentData(headEntity, renderMesh);
+        entityManager.SetComponentData(headEntity, s);
+
+        entityManager.SetComponentData(headEntity, new Head() { boidId = i});
+
+
+        // End head
+
+        return boidEntity;
     }
 
     public int numBoids = 100;
@@ -120,7 +149,7 @@ public class Bootstrap : MonoBehaviour
     {
         entityManager = World.Active.GetOrCreateManager<EntityManager>();
 
-        cubeArchitype = entityManager.CreateArchetype(
+        boidArchitype = entityManager.CreateArchetype(
             typeof(Position),
             typeof(Rotation),
             typeof(Scale),
@@ -133,6 +162,14 @@ public class Bootstrap : MonoBehaviour
             typeof(Flee)
         );
 
+        headArchitype = entityManager.CreateArchetype(
+            typeof(Position),
+            typeof(Rotation),
+            typeof(Scale),
+            typeof(Head)
+            );
+
+
         renderMesh = new RenderMesh();
         renderMesh.mesh = mesh;
         renderMesh.material = material;
@@ -140,10 +177,12 @@ public class Bootstrap : MonoBehaviour
         for (int i = 0; i < numBoids; i++)
         {
             Vector3 pos = Random.insideUnitSphere * radius;
-            CreateBoid(transform.position + pos, Quaternion.identity, i);
-        }
-    
+            CreateBoid(transform.position + pos, Quaternion.identity, i, size);
+        }    
     }
+
+    public float size = 3.0f;
+
     public void Update()
     {
         if (Input.GetKey(KeyCode.Joystick1Button2))

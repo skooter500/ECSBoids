@@ -219,10 +219,13 @@ MonoBehaviour:
   constrainWeight: 1
   fleeWeight: 5
   fleeDistance: 100
+  headAmplitude: 70
+  animationFrequency: 1
   numBoids: 5000
   radius: 1000
   neighbourDistance: 100
-  speed: 1
+  speed: 0
+  size: 3
 --- !u!4 &522459866
 Transform:
   m_ObjectHideFlags: 0

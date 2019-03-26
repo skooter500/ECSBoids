@@ -10,6 +10,34 @@ using UnityEngine;
 public class BoidJobSystem : JobComponentSystem
 {
     [BurstCompile]
+    struct HeadJob : IJobProcessComponentData<Head, Position, Rotation>
+    {
+        [NativeDisableParallelForRestriction]
+        public NativeArray<Vector3> positions;
+
+        [NativeDisableParallelForRestriction]
+        public NativeArray<Quaternion> rotations;
+
+        [NativeDisableParallelForRestriction]
+        public NativeArray<float> speeds;
+
+        public float amplitude;
+        public float frequency;
+        public float size;
+        public float dT;
+
+        public void Execute(ref Head h, ref Position p, ref Rotation r)
+        {
+            Vector3 pos = positions[h.boidId];
+            Vector3 up = rotations[h.boidId] * Vector3.up;
+            Quaternion q = Quaternion.AngleAxis(amplitude * Mathf.Sin(h.theta), up);
+            p.Value = pos + (q * Vector3.forward) * size;
+            r.Value = q; // ;
+            h.theta += frequency * dT * Mathf.PI * 2.0f;
+        }
+    }
+
+    [BurstCompile]
     struct SeperationJob: IJobProcessComponentData<Boid, Seperation>
     {
         [ReadOnly]
@@ -180,9 +208,12 @@ public class BoidJobSystem : JobComponentSystem
     {
         [NativeDisableParallelForRestriction]
         public NativeArray<Vector3> positions;
-        
+
         [NativeDisableParallelForRestriction]
         public NativeArray<Quaternion> rotations;
+
+        [NativeDisableParallelForRestriction]
+        public NativeArray<float> speeds;
 
         public float damping;
         public float banking;
@@ -271,8 +302,9 @@ public class BoidJobSystem : JobComponentSystem
             b.velocity += b.acceleration * dT;
 
             b.velocity = Vector3.ClampMagnitude(b.velocity, b.maxSpeed);
-
-            if (b.velocity.magnitude > 0)
+            float speed = b.velocity.magnitude;
+            speeds[b.boidId] = speed;
+            if (speed > 0)
             {
                 Vector3 tempUp = Vector3.Lerp(b.up, (Vector3.up) + (b.acceleration * banking), dT * 3.0f);
                 rotations[b.boidId] = Quaternion.LookRotation(b.velocity);
@@ -280,6 +312,7 @@ public class BoidJobSystem : JobComponentSystem
 
                 positions[b.boidId] += b.velocity * dT;
                 b.velocity *= (1.0f - (damping * dT));
+                
             }
             b.force = Vector3.zero;
         }
@@ -357,6 +390,7 @@ public class BoidJobSystem : JobComponentSystem
     NativeArray<int> neighbours;
     public NativeArray<Vector3> positions;
     public NativeArray<Quaternion> rotations;
+    public NativeArray<float> speeds;
 
     int maxNeighbours = 50;
 
@@ -371,7 +405,7 @@ public class BoidJobSystem : JobComponentSystem
         neighbours = new NativeArray<int>(bootstrap.numBoids * maxNeighbours, Allocator.Persistent);
         positions = new NativeArray<Vector3>(bootstrap.numBoids, Allocator.Persistent);
         rotations = new NativeArray<Quaternion>(bootstrap.numBoids, Allocator.Persistent);
-
+        speeds = new NativeArray<float>(bootstrap.numBoids, Allocator.Persistent); // Needed for the animations
     }
 
     protected override void OnDestroyManager()
@@ -379,6 +413,7 @@ public class BoidJobSystem : JobComponentSystem
         neighbours.Dispose();
         positions.Dispose();
         rotations.Dispose();
+        speeds.Dispose();
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
@@ -473,18 +508,33 @@ public class BoidJobSystem : JobComponentSystem
         {
             positions = this.positions,
             rotations = this.rotations,
+            speeds = this.speeds,
             dT = Time.deltaTime * bootstrap.speed,
             damping = 0.01f,
             banking = 0.01f
         };
         var boidHandle = boidJob.Schedule(this, fleeHandle);
 
+        // Animate the head and tail
+        var headJob = new HeadJob()
+        {
+            positions = this.positions,
+            rotations = this.rotations,
+            speeds = this.speeds,
+            dT = Time.deltaTime, // * bootstrap.speed,
+            amplitude = bootstrap.headAmplitude,
+            frequency = bootstrap.animationFrequency,
+            size = bootstrap.size
+        };
+
+        var headHandle = headJob.Schedule(this, boidHandle);
+        
         // Copy back to the entities
         var cfj = new CopyTransformsFromJob()
         {
             positions = this.positions,
             rotations = this.rotations
         };
-        return cfj.Schedule(this, boidHandle);
+        return cfj.Schedule(this, headHandle);
     }
 }
