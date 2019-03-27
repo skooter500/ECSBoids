@@ -251,6 +251,8 @@ GameObject:
   m_Component:
   - component: {fileID: 882082063}
   - component: {fileID: 882082062}
+  - component: {fileID: 882082064}
+  - component: {fileID: 882082065}
   m_Layer: 0
   m_Name: player
   m_TagString: Untagged
@@ -265,7 +267,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 882082061}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 97ae5d00cb174a74b85b5cee17b07fda, type: 3}
   m_Name: 
@@ -289,6 +291,45 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &882082064
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 882082061}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73cc7b9f2a39c0a45bff920c1c706411, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  headCamera: {fileID: 1096714492}
+  power: 5000
+  lookEnabled: 1
+  moveEnabled: 1
+  rotating: 0
+  attachedToCreature: 0
+  angularSpeed: 1000
+  addFlow: 1
+  flowForce: 10
+  flowScale: 0.01
+  desiredRotation: {x: 0, y: 0, z: 0, w: 0}
+--- !u!54 &882082065
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 882082061}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0.5
+  m_AngularDrag: 0.05
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &1096714489
 GameObject:
   m_ObjectHideFlags: 0
