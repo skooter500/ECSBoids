@@ -546,7 +546,7 @@ public class BoidJobSystem : JobComponentSystem
             speeds = this.speeds,
             dT = Time.deltaTime * bootstrap.speed,
             damping = 0.01f,
-            banking = 0.01f
+            banking = 0.00f
         };
         var boidHandle = boidJob.Schedule(this, fleeHandle);
 
