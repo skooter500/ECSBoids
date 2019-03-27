@@ -203,7 +203,9 @@ public class Bootstrap : MonoBehaviour
         {
             Vector3 pos = Random.insideUnitSphere * radius;
             CreateBoid(transform.position + pos, Quaternion.identity, i, size);
-        }    
+        }
+
+        Cursor.visible = false;
     }
 
     public float size = 3.0f;

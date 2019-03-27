@@ -49,7 +49,7 @@ public class ForceController : MonoBehaviour {
     void Yaw(float angle)
     {
 
-        Quaternion rot = Quaternion.AngleAxis(angle, Vector3.up);
+        Quaternion rot = Quaternion.AngleAxis(angle, transform.up);
         desiredRotation = rot * desiredRotation;
         rotating = true;
     }
@@ -130,7 +130,7 @@ public class ForceController : MonoBehaviour {
             Pitch(-mouseY * Time.deltaTime * contAngularSpeed);
         }
 
-        transform.rotation = Quaternion.Slerp(transform.rotation, desiredRotation, Time.deltaTime);
+        transform.rotation = Quaternion.Slerp(transform.rotation, desiredRotation, Time.deltaTime * 2.0f);
 
         float contWalk = Input.GetAxis("Vertical");
         float contStrafe = Input.GetAxis("Horizontal");
