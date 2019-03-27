@@ -206,6 +206,7 @@ public class Bootstrap : MonoBehaviour
         }
 
         Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     public float size = 3.0f;
