@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 170076734}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -310,7 +310,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 578043100}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1d8133af023214ae993fc28d2fd97a1e, type: 3}
   m_Name: 
@@ -455,7 +455,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &894541355
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -571,7 +571,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1339738206
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -586,8 +586,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   material: {fileID: 2100000, guid: 207fcf41b80264d409b18e84ec1f55ad, type: 2}
-  seekTarget: {x: 0, y: 0, z: 0}
+  seperationWeight: 1
+  cohesionWeight: 2
+  alignmentWeight: 1
+  wanderWeight: 1
+  constrainWeight: 1
+  fleeWeight: 1
+  fleeDistance: 50
+  headAmplitude: 20
+  tailAmplitude: 30
+  animationFrequency: 1
   numBoids: 1000
+  radius: 2000
+  neighbourDistance: 20
+  speed: 1
+  size: 3
 --- !u!4 &1339738207
 Transform:
   m_ObjectHideFlags: 0
