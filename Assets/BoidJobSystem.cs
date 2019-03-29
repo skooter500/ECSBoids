@@ -18,7 +18,7 @@ public class BoidJobSystem : JobComponentSystem
         public NativeArray<Vector3> positions;
 
         [NativeDisableParallelForRestriction]
-        public NativeMultiHashMap<int, int> cells;
+        public NativeMultiHashMap<int, int>.Concurrent cells;
 
         public int cellSize;
         public int gridSize; 
@@ -423,12 +423,50 @@ public class BoidJobSystem : JobComponentSystem
         [NativeDisableParallelForRestriction]
         public NativeArray<Quaternion> rotations;
 
+        public NativeMultiHashMap<int, int> cells;
+
         public float neighbourDistance;
         public int maxNeighbours;
+
+        public int cellSize;
+        public int gridSize;
+
+        private int FindCell(Vector3 pos)
+        {
+            return ((int)(pos.x / cellSize))
+                + ((int)(pos.z / cellSize)) * gridSize;
+        }
+
         public void Execute(ref Boid b)
         {
             int neighbourStartIndex = maxNeighbours * b.boidId;
             int neighbourCount = 0;
+
+            int cell = FindCell(positions[b.boidId]);
+            
+            NativeMultiHashMapIterator<int> iterator;
+            int boidId;
+            if (cells.TryGetFirstValue(cell, out boidId, out iterator))
+            {
+                do
+                {
+                    if (boidId != b.boidId)
+                    {
+                        if (Vector3.Distance(positions[b.boidId], positions[boidId]) < neighbourDistance)
+                        {
+                            neighbours[neighbourStartIndex + neighbourCount] = boidId;
+                            neighbourCount++;
+                            if (neighbourCount == maxNeighbours)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                } while (cells.TryGetNextValue(out boidId, ref iterator));
+            }
+
+            /*
+
             for (int i = 0; i < positions.Length; i++)
             {
                 if (i != b.boidId)
@@ -444,6 +482,7 @@ public class BoidJobSystem : JobComponentSystem
                     }
                 }
             }
+            */
             b.taggedCount = neighbourCount;
         }
     }
@@ -492,10 +531,11 @@ public class BoidJobSystem : JobComponentSystem
         var ctjHandle = ctj.Schedule(this, inputDeps);
 
 
+        cells.Clear();
         var partitionJob = new PartitionSpaceJob()
-        {
+        {  
             positions = this.positions,
-            cells = this.cells,
+            cells = this.cells.ToConcurrent(),
             cellSize = 100,
             gridSize = 100
         };
