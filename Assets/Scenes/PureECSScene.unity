@@ -217,8 +217,8 @@ MonoBehaviour:
   alignmentWeight: 1
   wanderWeight: 1
   constrainWeight: 1
-  fleeWeight: 7
-  fleeDistance: 200
+  fleeWeight: 10
+  fleeDistance: 50
   headAmplitude: 15
   tailAmplitude: 30
   animationFrequency: 0.03
