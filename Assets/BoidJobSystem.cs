@@ -9,6 +9,32 @@ using UnityEngine;
 
 public class BoidJobSystem : JobComponentSystem
 {
+    
+    [BurstCompile]
+    struct PartitionSpaceJob : IJobParallelFor
+    {
+
+        [NativeDisableParallelForRestriction]
+        public NativeArray<Vector3> positions;
+
+        [NativeDisableParallelForRestriction]
+        public NativeMultiHashMap<int, int> cells;
+
+        public int cellSize;
+        public int gridSize; 
+
+        public int FindCell(Vector3 pos)
+        {
+            return ((int)(pos.x / cellSize))
+                + ((int)(pos.z / cellSize)) * gridSize;
+        }
+  
+        public void Execute(int i)
+        {
+            cells.Add(FindCell(positions[i]), i);
+        }
+    }
+
     [BurstCompile]
     struct HeadJob : IJobProcessComponentData<Head, Position, Rotation>
     {
@@ -427,6 +453,8 @@ public class BoidJobSystem : JobComponentSystem
     public NativeArray<Quaternion> rotations;
     public NativeArray<float> speeds;
 
+    public NativeMultiHashMap<int, int> cells;
+
     int maxNeighbours = 50;
 
     Bootstrap bootstrap;
@@ -441,6 +469,7 @@ public class BoidJobSystem : JobComponentSystem
         positions = new NativeArray<Vector3>(bootstrap.numBoids, Allocator.Persistent);
         rotations = new NativeArray<Quaternion>(bootstrap.numBoids, Allocator.Persistent);
         speeds = new NativeArray<float>(bootstrap.numBoids, Allocator.Persistent); // Needed for the animations
+        cells = new NativeMultiHashMap<int, int>(bootstrap.numBoids, Allocator.Persistent);
     }
 
     protected override void OnDestroyManager()
@@ -449,6 +478,7 @@ public class BoidJobSystem : JobComponentSystem
         positions.Dispose();
         rotations.Dispose();
         speeds.Dispose();
+        cells.Dispose();
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
@@ -461,8 +491,19 @@ public class BoidJobSystem : JobComponentSystem
         };
         var ctjHandle = ctj.Schedule(this, inputDeps);
 
+
+        var partitionJob = new PartitionSpaceJob()
+        {
+            positions = this.positions,
+            cells = this.cells,
+            cellSize = 100,
+            gridSize = 100
+        };
+
+        var partitionHandle = partitionJob.Schedule(bootstrap.numBoids, 50, ctjHandle);
+
         // Count Neigthbours
-        
+
         var cnj = new CountNeighboursJob()
         {
             positions = this.positions,
@@ -472,7 +513,7 @@ public class BoidJobSystem : JobComponentSystem
             neighbourDistance = bootstrap.neighbourDistance
 
         };
-        var cnjHandle = cnj.Schedule(this, ctjHandle);
+        var cnjHandle = cnj.Schedule(this, partitionHandle);
 
         var seperationJob = new SeperationJob()
         {
