@@ -205,11 +205,15 @@ public class Bootstrap : MonoBehaviour
             CreateBoid(transform.position + pos, Quaternion.identity, i, size);
         }
 
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
+        //Cursor.visible = false;
+        //Cursor.lockState = CursorLockMode.Locked;
     }
 
     public float size = 3.0f;
+
+    public int cellSize = 50;
+    public int gridSize = 100;
+
 
     public void Update()
     {

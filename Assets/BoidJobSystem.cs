@@ -8,8 +8,7 @@ using Unity.Transforms;
 using UnityEngine;
 
 public class BoidJobSystem : JobComponentSystem
-{
-    
+{    
     [BurstCompile]
     struct PartitionSpaceJob : IJobParallelFor
     {
@@ -17,9 +16,10 @@ public class BoidJobSystem : JobComponentSystem
         [NativeDisableParallelForRestriction]
         public NativeArray<Vector3> positions;
 
-        [NativeDisableParallelForRestriction]
         public NativeMultiHashMap<int, int>.Concurrent cells;
 
+        public NativeHashMap<int, int>.Concurrent cellIds;
+        
         public int cellSize;
         public int gridSize; 
 
@@ -31,7 +31,9 @@ public class BoidJobSystem : JobComponentSystem
   
         public void Execute(int i)
         {
-            cells.Add(FindCell(positions[i]), i);
+            int cell = FindCell(positions[i]);
+            cells.Add(cell, i);
+            cellIds.TryAdd(cell, cell);
         }
     }
 
@@ -423,7 +425,11 @@ public class BoidJobSystem : JobComponentSystem
         [NativeDisableParallelForRestriction]
         public NativeArray<Quaternion> rotations;
 
+        [ReadOnly]
         public NativeMultiHashMap<int, int> cells;
+
+        [ReadOnly]
+        public NativeHashMap<int, int> cellIds;
 
         public float neighbourDistance;
         public int maxNeighbours;
@@ -442,6 +448,9 @@ public class BoidJobSystem : JobComponentSystem
             int neighbourStartIndex = maxNeighbours * b.boidId;
             int neighbourCount = 0;
 
+            NativeArray<int> keys = cellIds.GetKeyArray(Allocator.Temp);
+
+            keys.Dispose();
             int cell = FindCell(positions[b.boidId]);
             
             NativeMultiHashMapIterator<int> iterator;
@@ -464,7 +473,8 @@ public class BoidJobSystem : JobComponentSystem
                     }
                 } while (cells.TryGetNextValue(out boidId, ref iterator));
             }
-
+            
+            
             /*
 
             for (int i = 0; i < positions.Length; i++)
@@ -483,6 +493,7 @@ public class BoidJobSystem : JobComponentSystem
                 }
             }
             */
+
             b.taggedCount = neighbourCount;
         }
     }
@@ -493,6 +504,7 @@ public class BoidJobSystem : JobComponentSystem
     public NativeArray<float> speeds;
 
     public NativeMultiHashMap<int, int> cells;
+    public NativeHashMap<int, int> cellIds;
 
     int maxNeighbours = 50;
 
@@ -509,6 +521,7 @@ public class BoidJobSystem : JobComponentSystem
         rotations = new NativeArray<Quaternion>(bootstrap.numBoids, Allocator.Persistent);
         speeds = new NativeArray<float>(bootstrap.numBoids, Allocator.Persistent); // Needed for the animations
         cells = new NativeMultiHashMap<int, int>(bootstrap.numBoids, Allocator.Persistent);
+        cellIds = new NativeHashMap<int, int>(bootstrap.numBoids, Allocator.Persistent);
     }
 
     protected override void OnDestroyManager()
@@ -518,6 +531,7 @@ public class BoidJobSystem : JobComponentSystem
         rotations.Dispose();
         speeds.Dispose();
         cells.Dispose();
+        cellIds.Dispose();
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
@@ -536,8 +550,8 @@ public class BoidJobSystem : JobComponentSystem
         {  
             positions = this.positions,
             cells = this.cells.ToConcurrent(),
-            cellSize = 100,
-            gridSize = 100
+            cellSize = bootstrap.cellSize,
+            gridSize = bootstrap.gridSize
         };
 
         var partitionHandle = partitionJob.Schedule(bootstrap.numBoids, 50, ctjHandle);
@@ -550,6 +564,9 @@ public class BoidJobSystem : JobComponentSystem
             rotations = this.rotations,
             neighbours = this.neighbours,
             maxNeighbours = this.maxNeighbours,
+            cells = this.cells,
+            cellSize = bootstrap.cellSize,
+            gridSize = bootstrap.gridSize,
             neighbourDistance = bootstrap.neighbourDistance
 
         };
