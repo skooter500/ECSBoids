@@ -212,8 +212,8 @@ public class Bootstrap : MonoBehaviour
     public float size = 3.0f;
 
     public int cellSize = 50;
-    public int gridSize = 100;
-
+    public int gridSize = 10000;
+    public bool usePartitioning = true;
 
     public void Update()
     {

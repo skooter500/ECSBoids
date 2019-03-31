@@ -18,8 +18,7 @@ public class BoidJobSystem : JobComponentSystem
 
         public NativeMultiHashMap<int, int>.Concurrent cells;
 
-        public NativeHashMap<int, int>.Concurrent cellIds;
-        
+       
         public int cellSize;
         public int gridSize; 
 
@@ -33,7 +32,6 @@ public class BoidJobSystem : JobComponentSystem
         {
             int cell = FindCell(positions[i]);
             cells.Add(cell, i);
-            cellIds.TryAdd(cell, cell);
         }
     }
 
@@ -426,16 +424,14 @@ public class BoidJobSystem : JobComponentSystem
         public NativeArray<Quaternion> rotations;
 
         [ReadOnly]
-        public NativeMultiHashMap<int, int> cells;
-
-        [ReadOnly]
-        public NativeHashMap<int, int> cellIds;
-
+        public NativeMultiHashMap<int, int> cells;        
         public float neighbourDistance;
         public int maxNeighbours;
 
         public int cellSize;
         public int gridSize;
+
+        public bool usePatritioning;
 
         private int FindCell(Vector3 pos)
         {
@@ -447,60 +443,60 @@ public class BoidJobSystem : JobComponentSystem
         {
             int neighbourStartIndex = maxNeighbours * b.boidId;
             int neighbourCount = 0;
-
-            int surroundingCellCount = (int) Mathf.Ceil(neighbourDistance / cellSize);
-            for(int row = - surroundingCellCount; row <= surroundingCellCount; row ++)
+            
+            
+            if (usePatritioning)
             {
-                for (int col = -surroundingCellCount; row <= surroundingCellCount; col++)
+                int surroundingCellCount = (int) Mathf.Ceil(neighbourDistance / cellSize);
+                for(int row = - surroundingCellCount; row <= surroundingCellCount; row ++)
                 {
-                    Vector3 pos = positions[b.boidId] + new Vector3(col * cellSize, 0, row * cellSize);
-                    int cell = FindCell(pos);
-
-                    NativeMultiHashMapIterator<int> iterator;
-                    int boidId;
-                    if (cells.TryGetFirstValue(cell, out boidId, out iterator))
+                    for (int col = -surroundingCellCount; col <= surroundingCellCount; col++)
                     {
-                        do
+                        Vector3 pos = positions[b.boidId] + new Vector3(col * cellSize, 0, row * cellSize);
+                        int cell = FindCell(pos);
+
+                        NativeMultiHashMapIterator<int> iterator;
+                        int boidId;
+                        if (cells.TryGetFirstValue(cell, out boidId, out iterator))
                         {
-                            if (boidId != b.boidId)
+                            do
                             {
-                                if (Vector3.Distance(positions[b.boidId], positions[boidId]) < neighbourDistance)
+                                if (boidId != b.boidId)
                                 {
-                                    neighbours[neighbourStartIndex + neighbourCount] = boidId;
-                                    neighbourCount++;
-                                    if (neighbourCount == maxNeighbours)
+                                    if (Vector3.Distance(positions[b.boidId], positions[boidId]) < neighbourDistance)
                                     {
-                                        break;
+                                        neighbours[neighbourStartIndex + neighbourCount] = boidId;
+                                        neighbourCount++;
+                                        if (neighbourCount == maxNeighbours)
+                                        {
+                                            b.taggedCount = neighbourCount;
+                                            return;
+                                        }
                                     }
                                 }
-                            }
-                        } while (cells.TryGetNextValue(out boidId, ref iterator));
-                    }
-                }
-            }        
-
-            
-            
-            
-            /*
-
-            for (int i = 0; i < positions.Length; i++)
-            {
-                if (i != b.boidId)
-                {
-                    if (Vector3.Distance(positions[b.boidId], positions[i]) < neighbourDistance)
-                    {
-                        neighbours[neighbourStartIndex + neighbourCount] = i;
-                        neighbourCount++;
-                        if (neighbourCount == maxNeighbours)
-                        {
-                            break;
+                            } while (cells.TryGetNextValue(out boidId, ref iterator));
                         }
                     }
                 }
             }
-            */
-
+            else
+            {
+                for (int i = 0; i < positions.Length; i++)
+                {
+                    if (i != b.boidId)
+                    {
+                        if (Vector3.Distance(positions[b.boidId], positions[i]) < neighbourDistance)
+                        {
+                            neighbours[neighbourStartIndex + neighbourCount] = i;
+                            neighbourCount++;
+                            if (neighbourCount == maxNeighbours)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
             b.taggedCount = neighbourCount;
         }
     }
@@ -511,8 +507,7 @@ public class BoidJobSystem : JobComponentSystem
     public NativeArray<float> speeds;
 
     public NativeMultiHashMap<int, int> cells;
-    public NativeHashMap<int, int> cellIds;
-
+    
     int maxNeighbours = 50;
 
     Bootstrap bootstrap;
@@ -528,7 +523,6 @@ public class BoidJobSystem : JobComponentSystem
         rotations = new NativeArray<Quaternion>(bootstrap.numBoids, Allocator.Persistent);
         speeds = new NativeArray<float>(bootstrap.numBoids, Allocator.Persistent); // Needed for the animations
         cells = new NativeMultiHashMap<int, int>(bootstrap.numBoids, Allocator.Persistent);
-        cellIds = new NativeHashMap<int, int>(bootstrap.numBoids, Allocator.Persistent);
     }
 
     protected override void OnDestroyManager()
@@ -538,7 +532,6 @@ public class BoidJobSystem : JobComponentSystem
         rotations.Dispose();
         speeds.Dispose();
         cells.Dispose();
-        cellIds.Dispose();
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
@@ -574,6 +567,7 @@ public class BoidJobSystem : JobComponentSystem
             cells = this.cells,
             cellSize = bootstrap.cellSize,
             gridSize = bootstrap.gridSize,
+            usePatritioning = bootstrap.usePartitioning,
             neighbourDistance = bootstrap.neighbourDistance
 
         };
