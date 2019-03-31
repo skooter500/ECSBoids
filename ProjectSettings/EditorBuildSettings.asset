@@ -8,4 +8,7 @@ EditorBuildSettings:
   - enabled: 0
     path: 
     guid: 00000000000000000000000000000000
+  - enabled: 1
+    path: Assets/Scenes/PureECSScene.unity
+    guid: 4d7fc7abae5d5ab41b2baf1ea38abf09
   m_configObjects: {}

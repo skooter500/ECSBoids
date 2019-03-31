@@ -448,31 +448,38 @@ public class BoidJobSystem : JobComponentSystem
             int neighbourStartIndex = maxNeighbours * b.boidId;
             int neighbourCount = 0;
 
-            NativeArray<int> keys = cellIds.GetKeyArray(Allocator.Temp);
-
-            keys.Dispose();
-            int cell = FindCell(positions[b.boidId]);
-            
-            NativeMultiHashMapIterator<int> iterator;
-            int boidId;
-            if (cells.TryGetFirstValue(cell, out boidId, out iterator))
+            int surroundingCellCount = (int) Mathf.Ceil(neighbourDistance / cellSize);
+            for(int row = - surroundingCellCount; row <= surroundingCellCount; row ++)
             {
-                do
+                for (int col = -surroundingCellCount; row <= surroundingCellCount; col++)
                 {
-                    if (boidId != b.boidId)
+                    Vector3 pos = positions[b.boidId] + new Vector3(col * cellSize, 0, row * cellSize);
+                    int cell = FindCell(pos);
+
+                    NativeMultiHashMapIterator<int> iterator;
+                    int boidId;
+                    if (cells.TryGetFirstValue(cell, out boidId, out iterator))
                     {
-                        if (Vector3.Distance(positions[b.boidId], positions[boidId]) < neighbourDistance)
+                        do
                         {
-                            neighbours[neighbourStartIndex + neighbourCount] = boidId;
-                            neighbourCount++;
-                            if (neighbourCount == maxNeighbours)
+                            if (boidId != b.boidId)
                             {
-                                break;
+                                if (Vector3.Distance(positions[b.boidId], positions[boidId]) < neighbourDistance)
+                                {
+                                    neighbours[neighbourStartIndex + neighbourCount] = boidId;
+                                    neighbourCount++;
+                                    if (neighbourCount == maxNeighbours)
+                                    {
+                                        break;
+                                    }
+                                }
                             }
-                        }
+                        } while (cells.TryGetNextValue(out boidId, ref iterator));
                     }
-                } while (cells.TryGetNextValue(out boidId, ref iterator));
-            }
+                }
+            }        
+
+            
             
             
             /*
