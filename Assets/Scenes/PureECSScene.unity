@@ -227,6 +227,9 @@ MonoBehaviour:
   neighbourDistance: 100
   speed: 1
   size: 5
+  cellSize: 50
+  gridSize: 10000
+  usePartitioning: 1
 --- !u!4 &522459866
 Transform:
   m_ObjectHideFlags: 0

@@ -242,12 +242,13 @@ public class Bootstrap : MonoBehaviour
 
     IEnumerator Explosion()
     {
+        float oldRadius = radius;
         radius = 10;
-        yield return new WaitForSeconds(20);
-        radius = 1000;
+        yield return new WaitForSeconds(30);
+        radius = oldRadius;
         cohesionWeight = 0;
         neighbourDistance = 0;
-        yield return new WaitForSeconds(10);
+        yield return new WaitForSeconds(30);
         cohesionWeight = 2;
         neighbourDistance = 100;
     }
