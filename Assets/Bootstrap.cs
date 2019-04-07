@@ -244,11 +244,11 @@ public class Bootstrap : MonoBehaviour
     {
         float oldRadius = radius;
         radius = 10;
-        yield return new WaitForSeconds(30);
-        radius = oldRadius;
+        yield return new WaitForSeconds(20);
+        radius = 2000;
         cohesionWeight = 0;
         neighbourDistance = 0;
-        yield return new WaitForSeconds(30);
+        yield return new WaitForSeconds(20);
         cohesionWeight = 2;
         neighbourDistance = 100;
     }
