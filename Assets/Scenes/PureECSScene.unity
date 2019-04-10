@@ -212,7 +212,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   material: {fileID: 2100000, guid: 3eed7dac13da17543a8dca75fb843ef2, type: 2}
-  seperationWeight: 5
+  seperationWeight: 10
   cohesionWeight: 2
   alignmentWeight: 1
   wanderWeight: 1
@@ -226,7 +226,7 @@ MonoBehaviour:
   radius: 1000
   neighbourDistance: 100
   speed: 1
-  size: 5
+  size: 8
   cellSize: 50
   gridSize: 10000
   usePartitioning: 1
