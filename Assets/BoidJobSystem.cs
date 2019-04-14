@@ -8,7 +8,7 @@ using Unity.Transforms;
 using UnityEngine;
 
 public class BoidJobSystem : JobComponentSystem
-{    
+{
     [BurstCompile]
     struct PartitionSpaceJob : IJobParallelFor
     {
@@ -18,19 +18,20 @@ public class BoidJobSystem : JobComponentSystem
 
         public NativeMultiHashMap<int, int>.Concurrent cells;
 
-       
-        public int cellSize;
-        public int gridSize; 
 
-        public int FindCell(Vector3 pos)
+        public int cellSize;
+        public int gridSize;
+
+        public static int FindCell(Vector3 pos, int cellSize, int gridSize)
         {
             return ((int)(pos.x / cellSize))
-                + ((int)(pos.z / cellSize)) * gridSize;
+                + ((int)(pos.z / cellSize)) * gridSize
+                + ((int)(pos.y / cellSize)) * gridSize * gridSize;
         }
-  
+
         public void Execute(int i)
         {
-            int cell = FindCell(positions[i]);
+            int cell = FindCell(positions[i], cellSize, gridSize);
             cells.Add(cell, i);
         }
     }
@@ -58,7 +59,7 @@ public class BoidJobSystem : JobComponentSystem
             Quaternion q = rotations[h.boidId] * Quaternion.AngleAxis(Mathf.Sin(h.theta) * amplitude, up);
 
             // Calculate the center point of the head
-            Vector3 pos = positions[h.boidId] 
+            Vector3 pos = positions[h.boidId]
                 + rotations[h.boidId] * (Vector3.forward * size * 0.5f)
                 + q * (Vector3.forward * size * 0.5f);
             p.Value = pos;
@@ -99,7 +100,7 @@ public class BoidJobSystem : JobComponentSystem
     }
 
     [BurstCompile]
-    struct SeperationJob: IJobProcessComponentData<Boid, Seperation>
+    struct SeperationJob : IJobProcessComponentData<Boid, Seperation>
     {
         [ReadOnly]
         public NativeArray<int> neighbours;
@@ -113,14 +114,14 @@ public class BoidJobSystem : JobComponentSystem
         {
             Vector3 force = Vector3.zero;
             int neighbourStartIndex = maxNeighbours * b.boidId;
-            for(int i = 0; i < b.taggedCount; i ++)
+            for (int i = 0; i < b.taggedCount; i++)
             {
                 int neighbourId = neighbours[neighbourStartIndex + i];
                 Vector3 toNeighbour = positions[b.boidId] - positions[neighbourId];
                 force += (Vector3.Normalize(toNeighbour) / toNeighbour.magnitude);
             }
             s.force = force * weight;
-        }        
+        }
     }
 
     [BurstCompile]
@@ -229,7 +230,7 @@ public class BoidJobSystem : JobComponentSystem
                 int neighbourId = neighbours[neighbourStartIndex + i];
                 desired += rotations[neighbourId] * Vector3.forward;
             }
-            
+
             if (b.taggedCount > 0)
             {
                 desired /= b.taggedCount;
@@ -279,7 +280,7 @@ public class BoidJobSystem : JobComponentSystem
         public float damping;
         public float banking;
 
-        public float dT;        
+        public float dT;
 
         public Vector3 AccululateForces(ref Boid b, ref Seperation s, ref Alignment a, ref Cohesion c, ref Wander w, ref Constrain con)
         {
@@ -305,7 +306,7 @@ public class BoidJobSystem : JobComponentSystem
                 force = Vector3.ClampMagnitude(force, b.maxForce);
                 return force;
             }
-            
+
             force += c.force;
             if (force.magnitude >= b.maxForce)
             {
@@ -327,7 +328,7 @@ public class BoidJobSystem : JobComponentSystem
                 return force;
             }
 
-            
+
 
             //NativeArray<Vector3> forces;
 
@@ -374,14 +375,14 @@ public class BoidJobSystem : JobComponentSystem
 
                 positions[b.boidId] += b.velocity * dT;
                 b.velocity *= (1.0f - (damping * dT));
-                
+
             }
             b.force = Vector3.zero;
         }
     }
 
     [BurstCompile]
-    struct CopyTransformsToJob:IJobProcessComponentData<Position, Rotation, Boid>
+    struct CopyTransformsToJob : IJobProcessComponentData<Position, Rotation, Boid>
     {
         [NativeDisableParallelForRestriction]
         public NativeArray<Vector3> positions;
@@ -393,11 +394,11 @@ public class BoidJobSystem : JobComponentSystem
             positions[b.boidId] = p.Value;
             rotations[b.boidId] = r.Value;
         }
-        
+
     }
 
     [BurstCompile]
-    struct CopyTransformsFromJob :IJobProcessComponentData<Position, Rotation, Boid>
+    struct CopyTransformsFromJob : IJobProcessComponentData<Position, Rotation, Boid>
     {
         [NativeDisableParallelForRestriction]
         public NativeArray<Vector3> positions;
@@ -409,75 +410,74 @@ public class BoidJobSystem : JobComponentSystem
         {
             p.Value = positions[b.boidId];
             r.Value = rotations[b.boidId];
-        }        
+        }
     }
 
     [BurstCompile]
     struct CountNeighboursJob : IJobProcessComponentData<Boid>
-    {        
-        [NativeDisableParallelForRestriction]    
+    {
+        [NativeDisableParallelForRestriction]
         public NativeArray<int> neighbours;
 
         [NativeDisableParallelForRestriction]
         public NativeArray<Vector3> positions;
-        
+
         [NativeDisableParallelForRestriction]
         public NativeArray<Quaternion> rotations;
 
         [ReadOnly]
-        public NativeMultiHashMap<int, int> cells;        
+        public NativeMultiHashMap<int, int> cells;
         public float neighbourDistance;
         public int maxNeighbours;
-        
+
         public int cellSize;
         public int gridSize;
 
         public bool usePatritioning;
 
-        private int FindCell(Vector3 pos)
-        {
-            return ((int)(pos.x / cellSize))
-                + ((int)(pos.z / cellSize)) * gridSize;
-        }
 
         public void Execute(ref Boid b)
         {
             int neighbourStartIndex = maxNeighbours * b.boidId;
             int neighbourCount = 0;
-            
-            
+
+
             if (usePatritioning)
             {
-                int surroundingCellCount = (int) Mathf.Ceil(neighbourDistance / cellSize);
-                for(int row = - surroundingCellCount; row <= surroundingCellCount; row ++)
+                int surroundingCellCount = (int)Mathf.Ceil(neighbourDistance / cellSize);
+                for (int slice = -surroundingCellCount; slice <= surroundingCellCount; slice++)
                 {
-                    for (int col = -surroundingCellCount; col <= surroundingCellCount; col++)
+                    for (int row = -surroundingCellCount; row <= surroundingCellCount; row++)
                     {
-                        Vector3 pos = positions[b.boidId] + new Vector3(col * cellSize, 0, row * cellSize);
-                        int cell = FindCell(pos);
-
-                        NativeMultiHashMapIterator<int> iterator;
-                        int boidId;
-                        if (cells.TryGetFirstValue(cell, out boidId, out iterator))
+                        for (int col = -surroundingCellCount; col <= surroundingCellCount; col++)
                         {
-                            do
+                            Vector3 pos = positions[b.boidId] + new Vector3(col * cellSize, slice * cellSize, row * cellSize);
+                            int cell = PartitionSpaceJob.FindCell(pos, cellSize, gridSize);
+
+                            NativeMultiHashMapIterator<int> iterator;
+                            int boidId;
+                            if (cells.TryGetFirstValue(cell, out boidId, out iterator))
                             {
-                                if (boidId != b.boidId)
+                                do
                                 {
-                                    if (Vector3.Distance(positions[b.boidId], positions[boidId]) < neighbourDistance)
+                                    if (boidId != b.boidId)
                                     {
-                                        neighbours[neighbourStartIndex + neighbourCount] = boidId;
-                                        neighbourCount++;
-                                        if (neighbourCount == maxNeighbours)
+                                        if (Vector3.Distance(positions[b.boidId], positions[boidId]) < neighbourDistance)
                                         {
-                                            b.taggedCount = neighbourCount;
-                                            return;
+                                            neighbours[neighbourStartIndex + neighbourCount] = boidId;
+                                            neighbourCount++;
+                                            if (neighbourCount == maxNeighbours)
+                                            {
+                                                b.taggedCount = neighbourCount;
+                                                return;
+                                            }
                                         }
                                     }
-                                }
-                            } while (cells.TryGetNextValue(out boidId, ref iterator));
+                                } while (cells.TryGetNextValue(out boidId, ref iterator));
+                            }
                         }
                     }
+
                 }
             }
             else
@@ -501,14 +501,14 @@ public class BoidJobSystem : JobComponentSystem
             b.taggedCount = neighbourCount;
         }
     }
-    
+
     NativeArray<int> neighbours;
     public NativeArray<Vector3> positions;
     public NativeArray<Quaternion> rotations;
     public NativeArray<float> speeds;
 
     public NativeMultiHashMap<int, int> cells;
-    
+
     int maxNeighbours = 50;
 
     Bootstrap bootstrap;
@@ -548,7 +548,7 @@ public class BoidJobSystem : JobComponentSystem
 
         cells.Clear();
         var partitionJob = new PartitionSpaceJob()
-        {  
+        {
             positions = this.positions,
             cells = this.cells.ToConcurrent(),
             cellSize = bootstrap.cellSize,
@@ -594,7 +594,7 @@ public class BoidJobSystem : JobComponentSystem
         };
 
         var ajHandle = alignmentJob.Schedule(this, sjHandle);
-        
+
         var cohesionJob = new CohesionJob()
         {
             positions = this.positions,
@@ -636,7 +636,7 @@ public class BoidJobSystem : JobComponentSystem
         };
 
         var fleeHandle = fleeJob.Schedule(this, constrainHandle);
-        
+
 
         // Integrate the forces
         var boidJob = new BoidJob()
