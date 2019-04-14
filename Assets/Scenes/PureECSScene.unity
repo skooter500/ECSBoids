@@ -223,14 +223,16 @@ MonoBehaviour:
   tailAmplitude: 30
   animationFrequency: 0.03
   totalNeighbours: 50
-  numBoids: 20000
+  numBoids: 30000
   radius: 4000
-  neighbourDistance: 100
+  neighbourDistance: 150
   speed: 1
   size: 8
   cellSize: 50
   gridSize: 10000
   usePartitioning: 1
+  toPass: 0.5
+  clickCount: 0
 --- !u!4 &522459866
 Transform:
   m_ObjectHideFlags: 0
@@ -314,7 +316,7 @@ MonoBehaviour:
   moveEnabled: 1
   rotating: 0
   attachedToCreature: 0
-  angularSpeed: 1000
+  angularSpeed: 200
   addFlow: 1
   flowForce: 10
   flowScale: 0.01

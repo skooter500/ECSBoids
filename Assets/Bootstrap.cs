@@ -167,6 +167,7 @@ public class Bootstrap : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Cursor.visible = false;
         entityManager = World.Active.GetOrCreateManager<EntityManager>();
 
         boidArchitype = entityManager.CreateArchetype(
@@ -236,25 +237,44 @@ public class Bootstrap : MonoBehaviour
                 speed = 2;
             }
         }
-        if (Input.GetKey(KeyCode.Joystick1Button0))
-        {
-            StartCoroutine(Explosion());
-        }
+        Explosion();
     }
 
-    IEnumerator Explosion()
+    float ellapsed = 1000;
+    public float toPass = 0.3f;
+    public int clickCount = 0;
+
+
+    void Explosion()
     {
-        float oldRadius = radius;
-        radius = 10;
-        yield return new WaitForSeconds(30);
-        radius = 4000;
-        cohesionWeight = 0;
-        //totalNeighbours = 5;
-        //neighbourDistance = 0;
-        yield return new WaitForSeconds(30);
-        cohesionWeight = 2;
-        totalNeighbours = 50;
-        neighbourDistance = 100;
-    }
-
+        if (Input.GetKeyDown(KeyCode.JoystickButton0) || Input.GetKeyDown(KeyCode.J))
+        {
+            clickCount = (clickCount + 1) % 4;
+            ellapsed = 0;
+        }
+        ellapsed += Time.deltaTime;
+        
+        if (ellapsed > toPass && clickCount > 0)
+        {
+            Debug.Log(clickCount);
+            switch (clickCount)
+            {
+                case 1:
+                    radius = 10;
+                    neighbourDistance = 100;
+                    break;
+                case 2:
+                    radius = 4000;
+                    cohesionWeight = 0;
+                    neighbourDistance = 100;
+                    break;
+                case 3:
+                    radius = 4000;
+                    neighbourDistance = 150;
+                    cohesionWeight = 2;
+                    break;
+            }
+            clickCount = 0;
+        }
+    }    
 }

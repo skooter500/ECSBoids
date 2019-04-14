@@ -127,7 +127,8 @@ public class ForceController : MonoBehaviour {
         }
         if (mouseY != 0 && !UnityEngine.XR.XRDevice.isPresent)
         {
-            Pitch(-mouseY * Time.deltaTime * contAngularSpeed);
+            Fly(mouseY * Time.deltaTime * contSpeed);
+            //Pitch(-mouseY * Time.deltaTime * contAngularSpeed);
         }
 
         transform.rotation = Quaternion.Slerp(transform.rotation, desiredRotation, Time.deltaTime * 2.0f);
