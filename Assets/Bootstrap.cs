@@ -93,6 +93,8 @@ public class Bootstrap : MonoBehaviour
     public float tailAmplitude = 30;
     public float animationFrequency = 1;
 
+    public int totalNeighbours = 50;
+
     Entity CreateBoid(Vector3 pos, Quaternion q, int i, float size)
     {
         Entity boidEntity = entityManager.CreateEntity(boidArchitype);
@@ -244,12 +246,14 @@ public class Bootstrap : MonoBehaviour
     {
         float oldRadius = radius;
         radius = 10;
-        yield return new WaitForSeconds(20);
-        radius = 2000;
+        yield return new WaitForSeconds(30);
+        radius = 4000;
         cohesionWeight = 0;
-        neighbourDistance = 0;
-        yield return new WaitForSeconds(20);
+        //totalNeighbours = 5;
+        //neighbourDistance = 0;
+        yield return new WaitForSeconds(30);
         cohesionWeight = 2;
+        totalNeighbours = 50;
         neighbourDistance = 100;
     }
 

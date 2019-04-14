@@ -222,8 +222,9 @@ MonoBehaviour:
   headAmplitude: 15
   tailAmplitude: 30
   animationFrequency: 0.03
-  numBoids: 6000
-  radius: 1000
+  totalNeighbours: 50
+  numBoids: 20000
+  radius: 4000
   neighbourDistance: 100
   speed: 1
   size: 8

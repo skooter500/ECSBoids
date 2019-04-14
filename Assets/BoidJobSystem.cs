@@ -363,7 +363,7 @@ public class BoidJobSystem : JobComponentSystem
             b.velocity += b.acceleration * dT;
 
             b.velocity = Vector3.ClampMagnitude(b.velocity, b.maxSpeed);
-            b.velocity.y *= 0.8f;
+            //b.velocity.y *= 0.8f;
             float speed = b.velocity.magnitude;
             speeds[b.boidId] = speed;
             if (speed > 0)
@@ -428,7 +428,7 @@ public class BoidJobSystem : JobComponentSystem
         public NativeMultiHashMap<int, int> cells;        
         public float neighbourDistance;
         public int maxNeighbours;
-
+        
         public int cellSize;
         public int gridSize;
 
@@ -564,7 +564,7 @@ public class BoidJobSystem : JobComponentSystem
             positions = this.positions,
             rotations = this.rotations,
             neighbours = this.neighbours,
-            maxNeighbours = this.maxNeighbours,
+            maxNeighbours = bootstrap.totalNeighbours,
             cells = this.cells,
             cellSize = bootstrap.cellSize,
             gridSize = bootstrap.gridSize,
