@@ -315,7 +315,7 @@ MonoBehaviour:
   animationFrequency: 0.03
   totalNeighbours: 50
   threedcells: 0
-  numBoids: 20000
+  numBoids: 30000
   radius: 4000
   neighbourDistance: 150
   speed: 1
@@ -403,7 +403,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   headCamera: {fileID: 1096714492}
-  power: 5000
+  power: 10000
   lookEnabled: 1
   moveEnabled: 1
   rotating: 0
