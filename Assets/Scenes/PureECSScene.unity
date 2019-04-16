@@ -314,7 +314,8 @@ MonoBehaviour:
   tailAmplitude: 30
   animationFrequency: 0.03
   totalNeighbours: 50
-  numBoids: 30000
+  threedcells: 0
+  numBoids: 20000
   radius: 4000
   neighbourDistance: 150
   speed: 1

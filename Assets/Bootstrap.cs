@@ -95,6 +95,8 @@ public class Bootstrap : MonoBehaviour
 
     public int totalNeighbours = 50;
 
+    public bool threedcells = false;
+
     Entity CreateBoid(Vector3 pos, Quaternion q, int i, float size)
     {
         Entity boidEntity = entityManager.CreateEntity(boidArchitype);
@@ -261,11 +263,12 @@ public class Bootstrap : MonoBehaviour
             {
                 case 1:
                     radius = 10;
+                    totalNeighbours = 1;
                     break;
                 case 2:
                     radius = 4000;
                     cohesionWeight = 0;
-                    totalNeighbours = 50;
+                    totalNeighbours = 20;
                     neighbourDistance = 150;
                     break;
                 case 3:

@@ -56,12 +56,24 @@ public class BoidJobSystem : JobComponentSystem
         public NativeArray<Vector3> positions;
 
         public NativeMultiHashMap<int, int>.Concurrent cells;
-
-
+        public bool threedcells;
         public int cellSize;
         public int gridSize;
 
-        public static int FindCell(Vector3 pos, int cellSize, int gridSize)
+        public static Vector3 CellToPosition(int cell, int cellSize, int gridSize)
+        {
+            int row = cell / gridSize;
+            int col = cell - (row * gridSize);
+
+            return new Vector3(col * cellSize, 0, row * cellSize);
+        }
+
+        public static int PositionToCell(Vector3 pos, int cellSize, int gridSize)
+        {
+            return ((int)(pos.x / cellSize))
+                + ((int)(pos.z / cellSize)) * gridSize;
+        }
+        public static int PositionToCell3D(Vector3 pos, int cellSize, int gridSize)
         {
             return ((int)(pos.x / cellSize))
                 + ((int)(pos.z / cellSize)) * gridSize
@@ -70,7 +82,9 @@ public class BoidJobSystem : JobComponentSystem
 
         public void Execute(int i)
         {
-            int cell = FindCell(positions[i], cellSize, gridSize);
+            int cell = threedcells 
+                ? PositionToCell3D(positions[i], cellSize, gridSize)
+                : PositionToCell(positions[i], cellSize, gridSize);
             cells.Add(cell, i);
         }
     }
@@ -482,6 +496,7 @@ public class BoidJobSystem : JobComponentSystem
 
         public int cellSize;
         public int gridSize;
+        public bool threedcells;
 
         public bool usePatritioning;
 
@@ -495,14 +510,17 @@ public class BoidJobSystem : JobComponentSystem
             if (usePatritioning)
             {
                 int surroundingCellCount = (int)Mathf.Ceil(neighbourDistance / cellSize);
-                for (int slice = -surroundingCellCount; slice <= surroundingCellCount; slice++)
+
+                // Are we looking above and below? 
+                int sliceSurrounding = threedcells ? surroundingCellCount : 0;
+                for (int slice = -sliceSurrounding; slice <= sliceSurrounding; slice++)
                 {
                     for (int row = -surroundingCellCount; row <= surroundingCellCount; row++)
                     {
                         for (int col = -surroundingCellCount; col <= surroundingCellCount; col++)
                         {
                             Vector3 pos = positions[b.boidId] + new Vector3(col * cellSize, slice * cellSize, row * cellSize);
-                            int cell = PartitionSpaceJob.FindCell(pos, cellSize, gridSize);
+                            int cell = PartitionSpaceJob.PositionToCell(pos, cellSize, gridSize);
 
                             NativeMultiHashMapIterator<int> iterator;
                             int boidId;
@@ -601,6 +619,7 @@ public class BoidJobSystem : JobComponentSystem
         {
             positions = this.positions,
             cells = this.cells.ToConcurrent(),
+            threedcells = bootstrap.threedcells,
             cellSize = bootstrap.cellSize,
             gridSize = bootstrap.gridSize
         };
