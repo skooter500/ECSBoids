@@ -164,6 +164,7 @@ public class BoidJobSystem : JobComponentSystem
         public NativeArray<Vector3> positions;
         public float weight;
         public int maxNeighbours;
+        public Unity.Mathematics.Random random;
 
         public void Execute(ref Boid b, ref Seperation s)
         {
@@ -172,12 +173,26 @@ public class BoidJobSystem : JobComponentSystem
             for (int i = 0; i < b.taggedCount; i++)
             {
                 int neighbourId = neighbours[neighbourStartIndex + i];
+                if (neighbourId == b.boidId)
+                {
+                    continue;
+                }
                 Vector3 toNeighbour = positions[b.boidId] - positions[neighbourId];
                 float mag = toNeighbour.magnitude;
+                force += (Vector3.Normalize(toNeighbour) / mag);
+                
+                /*
                 if (mag > 0) // Need this check otherwise this behaviour can return NAN
                 {
                     force += (Vector3.Normalize(toNeighbour) / mag);
                 }
+                else
+                {
+                    // same position, so generate a random force
+                    Vector3 f = random.NextFloat3Direction();
+                    force += f  * b.maxForce;
+                }
+                */
             }
             s.force = force * weight;
         }
@@ -417,14 +432,11 @@ public class BoidJobSystem : JobComponentSystem
         public void Execute(ref Boid b, ref Seperation s, ref Alignment a, ref Cohesion c, ref Wander w, ref Constrain con)
         {
             b.force = AccululateForces(ref b, ref s, ref a, ref c, ref w, ref con) * b.weight;
-
             
             b.force = Vector3.ClampMagnitude(b.force, b.maxForce);
             Vector3 newAcceleration = (b.force * b.weight) / b.mass;
             b.acceleration = Vector3.Lerp(b.acceleration, newAcceleration, dT);
-
             b.velocity += b.acceleration * dT;
-
             b.velocity = Vector3.ClampMagnitude(b.velocity, b.maxSpeed);
             //b.velocity.y *= 0.8f;
             float speed = b.velocity.magnitude;
@@ -436,8 +448,6 @@ public class BoidJobSystem : JobComponentSystem
                 b.up = rotations[b.boidId] * Vector3.up;
 
                 positions[b.boidId] += b.velocity * dT;
-                checkNaN(positions[b.boidId]);
-                checkNaN(rotations[b.boidId]);
                 b.velocity *= (1.0f - (damping * dT));
 
             }
@@ -605,6 +615,9 @@ public class BoidJobSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
+
+        Unity.Mathematics.Random ran = new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, 100000));
+
         // Copy entities to the native arrays 
         var ctj = new CopyTransformsToJob()
         {
@@ -647,6 +660,7 @@ public class BoidJobSystem : JobComponentSystem
         {
             positions = this.positions,
             maxNeighbours = this.maxNeighbours,
+            random = ran,
             neighbours = this.neighbours,
             weight = bootstrap.seperationWeight
         };
@@ -675,7 +689,6 @@ public class BoidJobSystem : JobComponentSystem
 
         var cjHandle = cohesionJob.Schedule(this, ajHandle);
 
-        var ran = new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, 100000));
         var wanderJob = new WanderJob()
         {
             dT = Time.deltaTime * bootstrap.speed,
