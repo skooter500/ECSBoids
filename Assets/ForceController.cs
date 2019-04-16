@@ -127,8 +127,8 @@ public class ForceController : MonoBehaviour {
         }
         if (mouseY != 0 && !UnityEngine.XR.XRDevice.isPresent)
         {
-            Fly(mouseY * Time.deltaTime * contSpeed);
-            //Pitch(-mouseY * Time.deltaTime * contAngularSpeed);
+            //Fly(mouseY * Time.deltaTime * contSpeed);
+           Pitch(-mouseY * Time.deltaTime * contAngularSpeed);
         }
 
         transform.rotation = Quaternion.Slerp(transform.rotation, desiredRotation, Time.deltaTime * 2.0f);
@@ -146,7 +146,7 @@ public class ForceController : MonoBehaviour {
 
         if (Input.GetKey(KeyCode.Joystick1Button5))
         {
-            Fly(contSpeed * Time.deltaTime);
+            Fly(contSpeed* Time.deltaTime);
         }
 
         if (Input.GetKey(KeyCode.Joystick1Button4))

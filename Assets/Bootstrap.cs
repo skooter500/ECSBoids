@@ -251,7 +251,7 @@ public class Bootstrap : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.JoystickButton0) || Input.GetKeyDown(KeyCode.J))
         {
-            clickCount = (clickCount + 1) % 4;
+            clickCount = (clickCount + 1) % 6;
             ellapsed = 0;
         }
         ellapsed += Time.deltaTime;
@@ -266,12 +266,24 @@ public class Bootstrap : MonoBehaviour
                     totalNeighbours = 1;
                     break;
                 case 2:
+                    radius = 3000;
+                    cohesionWeight = 0;
+                    totalNeighbours = 50;
+                    neighbourDistance = 100;
+                    break;
+                case 3:
                     radius = 4000;
                     cohesionWeight = 0;
                     totalNeighbours = 50;
-                    neighbourDistance = 150;
+                    neighbourDistance = 100;
                     break;
-                case 3:
+                case 4:
+                    radius = 4000;
+                    neighbourDistance = 150;
+                    totalNeighbours = 5;
+                    cohesionWeight = 0;
+                    break;
+                case 5:
                     radius = 4000;
                     neighbourDistance = 150;
                     totalNeighbours = 50;
