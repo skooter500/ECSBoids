@@ -9,6 +9,45 @@ using UnityEngine;
 
 public class BoidJobSystem : JobComponentSystem
 {
+
+    static public bool checkNaN(Quaternion v)
+    {
+        if (float.IsNaN(v.x) || float.IsInfinity(v.x))
+        {
+            return true;
+        }
+        if (float.IsNaN(v.y) || float.IsInfinity(v.y))
+        {
+            return true;
+        }
+        if (float.IsNaN(v.z) || float.IsInfinity(v.z))
+        {
+            return true;
+        }
+        if (float.IsNaN(v.w) || float.IsInfinity(v.w))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    static public bool checkNaN(Vector3 v)
+    {
+        if (float.IsNaN(v.x) || float.IsInfinity(v.x))
+        {
+            return true;
+        }
+        if (float.IsNaN(v.y) || float.IsInfinity(v.y))
+        {
+            return true;
+        }
+        if (float.IsNaN(v.z) || float.IsInfinity(v.z))
+        {
+            return true;
+        }
+        return false;
+    }
+
     [BurstCompile]
     struct PartitionSpaceJob : IJobParallelFor
     {
@@ -62,8 +101,18 @@ public class BoidJobSystem : JobComponentSystem
             Vector3 pos = positions[h.boidId]
                 + rotations[h.boidId] * (Vector3.forward * size * 0.5f)
                 + q * (Vector3.forward * size * 0.5f);
+
             p.Value = pos;
             r.Value = q;
+            checkNaN(pos);
+            checkNaN(q);
+
+            
+            if (float.IsNaN(speeds[h.boidId]) || float.IsInfinity(speeds[h.boidId]))
+            {
+                speeds[h.boidId] = 0;
+            }
+
             h.theta += frequency * dT * Mathf.PI * 2.0f * speeds[h.boidId];
         }
     }
@@ -93,8 +142,10 @@ public class BoidJobSystem : JobComponentSystem
             Vector3 pos = positions[t.boidId]
                 - rotations[t.boidId] * (Vector3.forward * size * 0.5f)
                 - q * (Vector3.forward * size * 0.5f);
-            p.Value = pos;
-            r.Value = q;
+            p.Value = positions[t.boidId]; //pos;
+            r.Value = rotations[t.boidId]; // q;
+            checkNaN(pos);
+            checkNaN(q);
             t.theta += frequency * dT * Mathf.PI * 2.0f * speeds[t.boidId];
         }
     }
@@ -118,7 +169,11 @@ public class BoidJobSystem : JobComponentSystem
             {
                 int neighbourId = neighbours[neighbourStartIndex + i];
                 Vector3 toNeighbour = positions[b.boidId] - positions[neighbourId];
-                force += (Vector3.Normalize(toNeighbour) / toNeighbour.magnitude);
+                float mag = toNeighbour.magnitude;
+                if (mag > 0)
+                {
+                    force += (Vector3.Normalize(toNeighbour) / mag);
+                }
             }
             s.force = force * weight;
         }
@@ -358,13 +413,30 @@ public class BoidJobSystem : JobComponentSystem
         public void Execute(ref Boid b, ref Seperation s, ref Alignment a, ref Cohesion c, ref Wander w, ref Constrain con)
         {
             b.force = AccululateForces(ref b, ref s, ref a, ref c, ref w, ref con) * b.weight;
+
+            
             b.force = Vector3.ClampMagnitude(b.force, b.maxForce);
             Vector3 newAcceleration = (b.force * b.weight) / b.mass;
             b.acceleration = Vector3.Lerp(b.acceleration, newAcceleration, dT);
+
+            if (checkNaN(a.force))
+            {
+                b.velocity = Vector3.zero;
+                positions[b.boidId] = new Vector3(20, 0, 0);
+                return;
+            }
+
+
             b.velocity += b.acceleration * dT;
 
             b.velocity = Vector3.ClampMagnitude(b.velocity, b.maxSpeed);
             //b.velocity.y *= 0.8f;
+            /*if (checkNaN(b.velocity))
+            {
+                b.velocity = Vector3.zero;
+                positions[b.boidId] = new Vector3(100, 0, 0);
+            }
+            */
             float speed = b.velocity.magnitude;
             speeds[b.boidId] = speed;
             if (speed > 0)
@@ -374,6 +446,8 @@ public class BoidJobSystem : JobComponentSystem
                 b.up = rotations[b.boidId] * Vector3.up;
 
                 positions[b.boidId] += b.velocity * dT;
+                checkNaN(positions[b.boidId]);
+                checkNaN(rotations[b.boidId]);
                 b.velocity *= (1.0f - (damping * dT));
 
             }
