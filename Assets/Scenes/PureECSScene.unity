@@ -225,7 +225,7 @@ MonoBehaviour:
   totalNeighbours: 50
   threedcells: 0
   numBoids: 25000
-  radius: 4000
+  radius: 2000
   neighbourDistance: 150
   speed: 2
   size: 8
