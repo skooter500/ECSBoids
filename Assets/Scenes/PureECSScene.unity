@@ -224,7 +224,7 @@ MonoBehaviour:
   animationFrequency: 0.03
   totalNeighbours: 50
   threedcells: 0
-  numBoids: 25000
+  numBoids: 20000
   radius: 3000
   neighbourDistance: 150
   speed: 2
@@ -261,6 +261,7 @@ GameObject:
   - component: {fileID: 882082064}
   - component: {fileID: 882082065}
   - component: {fileID: 882082066}
+  - component: {fileID: 882082067}
   m_Layer: 0
   m_Name: player
   m_TagString: Untagged
@@ -350,6 +351,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c16fd53c3ac21e47af8db5db9d9ea86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &882082067
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 882082061}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8386b1340867e04b9c0edde91a06812, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  path: /Pictures/Boids
+  filePrefix: Boids
 --- !u!1 &1096714489
 GameObject:
   m_ObjectHideFlags: 0
