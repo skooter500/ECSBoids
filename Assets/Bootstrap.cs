@@ -266,31 +266,31 @@ public class Bootstrap : MonoBehaviour
                     totalNeighbours = 1;
                     break;
                 case 2:
-                    radius = 1000;
+                    radius = 2500;
                     cohesionWeight = 0;
                     totalNeighbours = 50;
                     neighbourDistance = 100;
                     break;
                 case 3:
-                    radius = 2000;
+                    radius = 3500;
                     cohesionWeight = 0;
                     totalNeighbours = 50;
                     neighbourDistance = 100;
                     break;
                 case 4:
-                    radius = 3000;
+                    radius = 4500;
                     neighbourDistance = 150;
                     totalNeighbours = 50;
                     cohesionWeight = 0;
                     break;
                 case 5:
-                    radius = 3000;
+                    radius = 2500;
                     neighbourDistance = 150;
                     totalNeighbours = 50;
                     cohesionWeight = 2;
                     break;
                 case 6:
-                    radius = 4000;
+                    radius = 3500;
                     neighbourDistance = 150;
                     totalNeighbours = 50;
                     cohesionWeight = 2;

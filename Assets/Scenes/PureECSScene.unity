@@ -215,7 +215,7 @@ MonoBehaviour:
   seperationWeight: 10
   cohesionWeight: 2
   alignmentWeight: 1
-  wanderWeight: 1
+  wanderWeight: 2
   constrainWeight: 1
   fleeWeight: 10
   fleeDistance: 50
@@ -224,8 +224,8 @@ MonoBehaviour:
   animationFrequency: 0.03
   totalNeighbours: 50
   threedcells: 0
-  numBoids: 20000
-  radius: 3000
+  numBoids: 10000
+  radius: 2500
   neighbourDistance: 150
   speed: 2
   size: 8
