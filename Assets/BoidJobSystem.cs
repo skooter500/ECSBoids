@@ -587,7 +587,7 @@ public class BoidJobSystem : JobComponentSystem
 
     public NativeMultiHashMap<int, int> cells;
 
-    int maxNeighbours = 50;
+    int maxNeighbours = 100;
 
     Bootstrap bootstrap;
 

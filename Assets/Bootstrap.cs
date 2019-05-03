@@ -251,7 +251,7 @@ public class Bootstrap : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.JoystickButton0) || Input.GetKeyDown(KeyCode.J))
         {
-            clickCount = (clickCount + 1) % 7;
+            clickCount = (clickCount + 1) % 8;
             ellapsed = 0;
         }
         ellapsed += Time.deltaTime;
@@ -266,33 +266,39 @@ public class Bootstrap : MonoBehaviour
                     totalNeighbours = 1;
                     break;
                 case 2:
-                    radius = 2500;
+                    radius = 500;
                     cohesionWeight = 0;
-                    totalNeighbours = 50;
+                    totalNeighbours = 100;
                     neighbourDistance = 100;
                     break;
                 case 3:
-                    radius = 3500;
+                    radius = 1000;
                     cohesionWeight = 0;
-                    totalNeighbours = 50;
+                    totalNeighbours = 100;
                     neighbourDistance = 100;
                     break;
                 case 4:
-                    radius = 4500;
+                    radius = 2000;
                     neighbourDistance = 150;
-                    totalNeighbours = 50;
+                    totalNeighbours = 100;
                     cohesionWeight = 0;
                     break;
                 case 5:
-                    radius = 2500;
+                    radius = 3000;
                     neighbourDistance = 150;
-                    totalNeighbours = 50;
+                    totalNeighbours = 100;
                     cohesionWeight = 2;
                     break;
                 case 6:
-                    radius = 3500;
+                    radius = 500;
                     neighbourDistance = 150;
-                    totalNeighbours = 50;
+                    totalNeighbours = 100;
+                    cohesionWeight = 2;
+                    break;
+                case 7:
+                    radius = 1000;
+                    neighbourDistance = 150;
+                    totalNeighbours = 100;
                     cohesionWeight = 2;
                     break;
             }
