@@ -217,7 +217,7 @@ MonoBehaviour:
   alignmentWeight: 1
   wanderWeight: 2
   constrainWeight: 1
-  fleeWeight: 50
+  fleeWeight: 1
   fleeDistance: 500
   headAmplitude: 15
   tailAmplitude: 30
@@ -229,6 +229,7 @@ MonoBehaviour:
   angularDamping: 10
   limitUpAndDown: 0.9
   maxBoidsPerFrame: 200
+  seekWeight: 0
   numBoids: 7000
   radius: 3000
   neighbourDistance: 150
@@ -318,12 +319,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   headCamera: {fileID: 1096714492}
-  power: 20000
+  power: 30000
   lookEnabled: 1
   moveEnabled: 1
   rotating: 0
   attachedToCreature: 0
-  angularSpeed: 100
+  angularSpeed: 150
   addFlow: 0
   flowForce: 10
   flowScale: 0.01

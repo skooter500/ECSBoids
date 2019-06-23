@@ -7,7 +7,29 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+public struct Boid : IComponentData
+{
+    public int boidId;
+    public Vector3 force;
+    public Vector3 velocity;
+    public Vector3 up;
+
+    public Vector3 acceleration;
+    public float mass;
+    public float maxSpeed;
+    public float maxForce;
+    public float weight;
+    public int taggedCount;
+
+    public Vector3 fleeForce; // Have to put this here because there is a limit to the number of components in IJobProcessComponentData
+    public Vector3 seekForce; // Have to put this here because there is a limit to the number of components in IJobProcessComponentData
+}
+
 public struct Flee : IComponentData
+{
+    public Vector3 force;
+}
+public struct Seek : IComponentData
 {
     public Vector3 force;
 }
@@ -219,6 +241,24 @@ public class BoidJobSystem : JobComponentSystem
     }
 
     [BurstCompile]
+    struct SeekJob : IJobProcessComponentData<Boid, Seek>
+    {
+        [NativeDisableParallelForRestriction]
+        public NativeArray<Vector3> positions;
+        public Vector3 targetPos;
+        public float distance;
+        public float weight;
+
+        public void Execute(ref Boid b, ref Seek s)
+        {
+            Vector3 desired = targetPos - positions[b.boidId];
+            desired.Normalize();
+            desired *= b.maxSpeed;
+            b.seekForce = (desired - b.velocity) * weight;
+       }
+    }
+
+    [BurstCompile]
     struct CohesionJob : IJobProcessComponentData<Boid, Cohesion>
     {
         [ReadOnly]
@@ -370,6 +410,13 @@ public class BoidJobSystem : JobComponentSystem
             }
 
             force += con.force;
+            if (force.magnitude >= b.maxForce)
+            {
+                force = Vector3.ClampMagnitude(force, b.maxForce);
+                return force;
+            }
+
+            force += b.seekForce;
             if (force.magnitude >= b.maxForce)
             {
                 force = Vector3.ClampMagnitude(force, b.maxForce);
@@ -695,6 +742,16 @@ public class BoidJobSystem : JobComponentSystem
 
         var fleeHandle = fleeJob.Schedule(this, constrainHandle);
 
+        var seekJob = new SeekJob()
+        {
+            positions = this.positions,
+            targetPos = Camera.main.transform.position,
+            weight = bootstrap.seekWeight
+        };
+
+        var seekHandle = seekJob.Schedule(this, fleeHandle);
+
+
 
         // Integrate the forces
         var boidJob = new BoidJob()
@@ -707,7 +764,7 @@ public class BoidJobSystem : JobComponentSystem
             limitUpAndDown = bootstrap.limitUpAndDown,
             banking = 0.00f
         };
-        var boidHandle = boidJob.Schedule(this, fleeHandle);
+        var boidHandle = boidJob.Schedule(this, seekHandle);
 
         // Copy back to the entities 
         var cfj = new CopyTransformsFromJob()

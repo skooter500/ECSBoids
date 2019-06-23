@@ -5,22 +5,7 @@ using UnityEngine;
 using Unity.Transforms;
 using Unity.Rendering;
 
-public struct Boid:IComponentData
-{
-    public int boidId;
-    public Vector3  force;
-    public Vector3  velocity;
-    public Vector3  up;
-    
-    public Vector3  acceleration;
-    public float mass;
-    public float maxSpeed;
-    public float maxForce;
-    public float weight;
-    public int taggedCount;
 
-    public Vector3 fleeForce; // Have to put this here because there is a limit to the number of components in IJobProcessComponentData
-}
 
 
 
@@ -62,6 +47,8 @@ public class BoidBootstrap : MonoBehaviour
     public float limitUpAndDown = 0.5f;
 
     public int maxBoidsPerFrame = 1000;
+
+    public float seekWeight = 0;
 
     Entity CreateBoid(Vector3 pos, Quaternion q, int boidId, float size)
     {
@@ -183,6 +170,7 @@ public class BoidBootstrap : MonoBehaviour
             typeof(Wander),
             typeof(Constrain),
             typeof(Flee),
+            typeof(Seek),
             typeof(Spine)
 
         );
@@ -294,6 +282,7 @@ public class BoidBootstrap : MonoBehaviour
                     radius = 10;
                     totalNeighbours = 1;
                     limitUpAndDown = 1;
+                    seekWeight = 0;
                     break;
                 case 2:
                     radius = 2000;
@@ -301,6 +290,7 @@ public class BoidBootstrap : MonoBehaviour
                     totalNeighbours = 100;
                     neighbourDistance = 100;
                     limitUpAndDown = 1;
+                    seekWeight = 0;
                     break;
                 case 3:
                     radius = 3000;
@@ -308,6 +298,7 @@ public class BoidBootstrap : MonoBehaviour
                     totalNeighbours = 100;
                     neighbourDistance = 100;
                     limitUpAndDown = 1;
+                    seekWeight = 0;
                     break;
                 case 4:
                     radius = 4000;
@@ -315,6 +306,7 @@ public class BoidBootstrap : MonoBehaviour
                     totalNeighbours = 100;
                     cohesionWeight = 0;
                     limitUpAndDown = 1;
+                    seekWeight = 0;
                     break;
                 case 5:
                     radius = 5000;
@@ -322,6 +314,7 @@ public class BoidBootstrap : MonoBehaviour
                     totalNeighbours = 100;
                     cohesionWeight = 0;
                     limitUpAndDown = 1;
+                    seekWeight = 0;
                     break;
                 case 6:
                     radius = 2000;
@@ -329,6 +322,7 @@ public class BoidBootstrap : MonoBehaviour
                     totalNeighbours = 100;
                     cohesionWeight = 2;
                     limitUpAndDown = 0.9f;
+                    seekWeight = 0;
                     break;
                 case 7:
                     radius = 3000;
@@ -343,8 +337,18 @@ public class BoidBootstrap : MonoBehaviour
                     totalNeighbours = 100;
                     cohesionWeight = 2;
                     limitUpAndDown = 0.9f;
+                    seekWeight = 0;
                     break;
                 case 9:
+                    radius = 5000;
+                    neighbourDistance = 150;
+                    totalNeighbours = 100;
+                    cohesionWeight = 2;
+                    limitUpAndDown = 0.9f;
+                    seekWeight = 0;
+                    break;
+                case 10:
+                    seekWeight = 1;
                     radius = 5000;
                     neighbourDistance = 150;
                     totalNeighbours = 100;
