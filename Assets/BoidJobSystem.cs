@@ -9,7 +9,6 @@ using UnityEngine;
 
 public class BoidJobSystem : JobComponentSystem
 {
-
     static public bool checkNaN(Quaternion v)
     {
         if (float.IsNaN(v.x) || float.IsInfinity(v.x))
@@ -589,11 +588,11 @@ public class BoidJobSystem : JobComponentSystem
 
     int maxNeighbours = 100;
 
-    Bootstrap bootstrap;
+    BoidBootstrap bootstrap;
 
     protected override void OnCreateManager()
     {
-        bootstrap = GameObject.FindObjectOfType<Bootstrap>();
+        bootstrap = GameObject.FindObjectOfType<BoidBootstrap>();
 
         // Want to use this but it hangs when I try and access it
         // neighbours = new NativeMultiHashMap<int, int>(10000, Allocator.Persistent);

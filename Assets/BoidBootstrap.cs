@@ -22,6 +22,13 @@ public struct Boid:IComponentData
     public Vector3 fleeForce; // Have to put this here because there is a limit to the number of components in IJobProcessComponentData
 }
 
+public struct Spine : IComponentData
+{
+    public int parent;
+    public int spineId;
+    public Vector3 offset;
+}
+
 public struct Head : IComponentData
 {
     public float theta;
@@ -69,11 +76,14 @@ public struct Wander : IComponentData
     public Vector3 target;
 }
 
-public class Bootstrap : MonoBehaviour
+public class BoidBootstrap : MonoBehaviour
 {
     private EntityArchetype boidArchitype;
     private EntityArchetype headArchitype;
     private EntityArchetype tailArchitype;
+
+    private EntityArchetype spineArchitype;
+
     private EntityManager entityManager;
     
     private RenderMesh bodyMesh;
@@ -97,7 +107,11 @@ public class Bootstrap : MonoBehaviour
 
     public bool threedcells = false;
 
-    Entity CreateBoid(Vector3 pos, Quaternion q, int i, float size)
+    public int spineLength = 4;
+    public float bondDamping = 10;
+    public float angularDamping = 10;
+
+    Entity CreateBoid(Vector3 pos, Quaternion q, int boidId, float size)
     {
         Entity boidEntity = entityManager.CreateEntity(boidArchitype);
 
@@ -117,7 +131,7 @@ public class Bootstrap : MonoBehaviour
         entityManager.SetComponentData(boidEntity, s);
 
 
-        entityManager.SetComponentData(boidEntity, new Boid() {boidId = i, mass = 1, maxSpeed = 100, maxForce = 400, weight = 200});
+        entityManager.SetComponentData(boidEntity, new Boid() {boidId = boidId, mass = 1, maxSpeed = 100, maxForce = 400, weight = 200});
         entityManager.SetComponentData(boidEntity, new Seperation() );
         entityManager.SetComponentData(boidEntity, new Alignment() );
         entityManager.SetComponentData(boidEntity, new Cohesion() );
@@ -125,8 +139,22 @@ public class Bootstrap : MonoBehaviour
         entityManager.SetComponentData(boidEntity, new Flee());
         entityManager.SetComponentData(boidEntity, new Wander() { distance =2
             , radius = 1.2f, jitter = 80, target = Random.insideUnitSphere * 1.2f });
+        entityManager.SetComponentData(boidEntity, new Spine() { parent = -1, spineId = (spineLength + 1) * boidId});
 
         entityManager.AddSharedComponentData(boidEntity, bodyMesh);
+
+        for(int i = 0; i < spineLength; i ++)
+        {
+            int parentId = (boidId * (spineLength + 1)) + i;
+            Position sp = new Position();
+            sp.Value = pos - (q * Vector3.forward) * size;
+            Entity spineEntity = entityManager.CreateEntity(spineArchitype);
+
+            entityManager.SetComponentData(spineEntity, sp);
+            entityManager.SetComponentData(spineEntity, new Spine() { parent = parentId, spineId = parentId + 1, offset = new Vector3(0, 0, -size) });
+        }
+
+        /*
 
         // Make the head
         Entity headEntity = entityManager.CreateEntity(headArchitype);
@@ -155,6 +183,8 @@ public class Bootstrap : MonoBehaviour
         entityManager.SetComponentData(tailEntity, s);
         entityManager.SetComponentData(tailEntity, new Tail() { boidId = i });
         // End tail
+
+        */
 
         return boidEntity;
     }
@@ -199,6 +229,11 @@ public class Bootstrap : MonoBehaviour
                     typeof(Tail)
                     );
 
+        spineArchitype = entityManager.CreateArchetype(
+                typeof(Position),
+                typeof(Rotation),
+                typeof(Spine)
+                );
 
         bodyMesh = new RenderMesh();
         bodyMesh.mesh = mesh;
