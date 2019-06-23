@@ -371,25 +371,39 @@ public class BoidBootstrap : MonoBehaviour
                     limitUpAndDown = 1;
                     break;
                 case 5:
+                    radius = 5000;
+                    neighbourDistance = 150;
+                    totalNeighbours = 100;
+                    cohesionWeight = 0;
+                    limitUpAndDown = 1;
+                    break;
+                case 6:
                     radius = 2000;
                     neighbourDistance = 150;
                     totalNeighbours = 100;
                     cohesionWeight = 2;
-                    limitUpAndDown = 0.8f;
+                    limitUpAndDown = 0.9f;
                     break;
-                case 6:
+                case 7:
                     radius = 3000;
                     neighbourDistance = 150;
                     totalNeighbours = 100;
                     cohesionWeight = 2;
-                    limitUpAndDown = 0.8f;
+                    limitUpAndDown = 0.9f;
                     break;
-                case 7:
+                case 8:
                     radius = 4000;
                     neighbourDistance = 150;
                     totalNeighbours = 100;
                     cohesionWeight = 2;
-                    limitUpAndDown = 0.8f;
+                    limitUpAndDown = 0.9f;
+                    break;
+                case 9:
+                    radius = 5000;
+                    neighbourDistance = 150;
+                    totalNeighbours = 100;
+                    cohesionWeight = 2;
+                    limitUpAndDown = 0.9f;
                     break;
             }
             clickCount = 0;

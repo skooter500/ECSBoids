@@ -227,7 +227,7 @@ MonoBehaviour:
   spineLength: 5
   bondDamping: 0.01
   angularDamping: 10
-  limitUpAndDown: 0.8
+  limitUpAndDown: 0.9
   maxBoidsPerFrame: 200
   numBoids: 7000
   radius: 3000
