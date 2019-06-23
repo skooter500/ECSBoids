@@ -218,7 +218,7 @@ MonoBehaviour:
   wanderWeight: 2
   constrainWeight: 1
   fleeWeight: 10
-  fleeDistance: 50
+  fleeDistance: 100
   headAmplitude: 15
   tailAmplitude: 30
   animationFrequency: 0.02
@@ -227,13 +227,13 @@ MonoBehaviour:
   spineLength: 5
   bondDamping: 0.01
   angularDamping: 10
-  limitUpAndDown: 0
+  limitUpAndDown: 0.8
   maxBoidsPerFrame: 200
   numBoids: 7000
-  radius: 2000
+  radius: 3000
   neighbourDistance: 150
   speed: 2
-  size: 20
+  size: 17
   cellSize: 50
   gridSize: 10000
   usePartitioning: 1

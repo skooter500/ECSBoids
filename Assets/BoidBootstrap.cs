@@ -347,42 +347,49 @@ public class BoidBootstrap : MonoBehaviour
                 case 1:
                     radius = 10;
                     totalNeighbours = 1;
+                    limitUpAndDown = 1;
                     break;
                 case 2:
-                    radius = 500;
+                    radius = 2000;
                     cohesionWeight = 0;
                     totalNeighbours = 100;
                     neighbourDistance = 100;
+                    limitUpAndDown = 1;
                     break;
                 case 3:
-                    radius = 1000;
+                    radius = 3000;
                     cohesionWeight = 0;
                     totalNeighbours = 100;
                     neighbourDistance = 100;
+                    limitUpAndDown = 1;
                     break;
                 case 4:
-                    radius = 2000;
+                    radius = 4000;
                     neighbourDistance = 150;
                     totalNeighbours = 100;
                     cohesionWeight = 0;
+                    limitUpAndDown = 1;
                     break;
                 case 5:
+                    radius = 2000;
+                    neighbourDistance = 150;
+                    totalNeighbours = 100;
+                    cohesionWeight = 2;
+                    limitUpAndDown = 0.8f;
+                    break;
+                case 6:
                     radius = 3000;
                     neighbourDistance = 150;
                     totalNeighbours = 100;
                     cohesionWeight = 2;
-                    break;
-                case 6:
-                    radius = 500;
-                    neighbourDistance = 150;
-                    totalNeighbours = 100;
-                    cohesionWeight = 2;
+                    limitUpAndDown = 0.8f;
                     break;
                 case 7:
-                    radius = 1000;
+                    radius = 4000;
                     neighbourDistance = 150;
                     totalNeighbours = 100;
                     cohesionWeight = 2;
+                    limitUpAndDown = 0.8f;
                     break;
             }
             clickCount = 0;
