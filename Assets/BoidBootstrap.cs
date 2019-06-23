@@ -268,7 +268,7 @@ public class BoidBootstrap : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.JoystickButton0) || Input.GetKeyDown(KeyCode.J))
         {
-            clickCount = (clickCount + 1) % 8;
+            clickCount = (clickCount + 1) % 11;
             ellapsed = 0;
         }
         ellapsed += Time.deltaTime;
@@ -291,6 +291,7 @@ public class BoidBootstrap : MonoBehaviour
                     neighbourDistance = 100;
                     limitUpAndDown = 1;
                     seekWeight = 0;
+                    constrainWeight = 1;
                     break;
                 case 3:
                     radius = 3000;
@@ -299,6 +300,7 @@ public class BoidBootstrap : MonoBehaviour
                     neighbourDistance = 100;
                     limitUpAndDown = 1;
                     seekWeight = 0;
+                    constrainWeight = 1;
                     break;
                 case 4:
                     radius = 4000;
@@ -307,6 +309,7 @@ public class BoidBootstrap : MonoBehaviour
                     cohesionWeight = 0;
                     limitUpAndDown = 1;
                     seekWeight = 0;
+                    constrainWeight = 1;
                     break;
                 case 5:
                     radius = 5000;
@@ -315,6 +318,7 @@ public class BoidBootstrap : MonoBehaviour
                     cohesionWeight = 0;
                     limitUpAndDown = 1;
                     seekWeight = 0;
+                    constrainWeight = 1;
                     break;
                 case 6:
                     radius = 2000;
@@ -323,6 +327,7 @@ public class BoidBootstrap : MonoBehaviour
                     cohesionWeight = 2;
                     limitUpAndDown = 0.9f;
                     seekWeight = 0;
+                    constrainWeight = 1;
                     break;
                 case 7:
                     radius = 3000;
@@ -330,6 +335,7 @@ public class BoidBootstrap : MonoBehaviour
                     totalNeighbours = 100;
                     cohesionWeight = 2;
                     limitUpAndDown = 0.9f;
+                    constrainWeight = 1;
                     break;
                 case 8:
                     radius = 4000;
@@ -338,6 +344,7 @@ public class BoidBootstrap : MonoBehaviour
                     cohesionWeight = 2;
                     limitUpAndDown = 0.9f;
                     seekWeight = 0;
+                    constrainWeight = 1;
                     break;
                 case 9:
                     radius = 5000;
@@ -346,13 +353,16 @@ public class BoidBootstrap : MonoBehaviour
                     cohesionWeight = 2;
                     limitUpAndDown = 0.9f;
                     seekWeight = 0;
+                    constrainWeight = 1;
                     break;
                 case 10:
                     seekWeight = 1;
                     radius = 5000;
                     neighbourDistance = 150;
                     totalNeighbours = 100;
+                    fleeWeight = 3.0f;
                     cohesionWeight = 2;
+                    constrainWeight = 0;
                     limitUpAndDown = 0.9f;
                     break;
             }
