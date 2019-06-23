@@ -74,6 +74,7 @@ struct CopyTransformsFromSpineJob : IJobProcessComponentData<Position, Rotation,
     }
 }
 
+[UpdateAfter(typeof(BoidJobSystem))]
 public class SpineSystem : JobComponentSystem
 {
     public BoidBootstrap bootstrap;

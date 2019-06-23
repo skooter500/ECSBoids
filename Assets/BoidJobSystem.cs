@@ -7,6 +7,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+
 public class BoidJobSystem : JobComponentSystem
 {
     static public bool checkNaN(Quaternion v)
@@ -144,9 +145,12 @@ public class BoidJobSystem : JobComponentSystem
             Vector3 up = Vector3.up;
             Quaternion q = rotations[t.spineId] * Quaternion.AngleAxis(Mathf.Sin(-t.theta) * amplitude, up);
             // Calculate the center point of the tail
+
+            //Vector3 pos = positions[t.spineId] - q * (Vector3.forward * size * 0.5f);
             Vector3 pos = positions[t.spineId]
                 - rotations[t.spineId] * (Vector3.forward * size * 0.5f)
                 - q * (Vector3.forward * size * 0.5f);
+                
             p.Value = pos;
             r.Value = q;
             t.theta += frequency * dT * Mathf.PI * 2.0f * speeds[t.boidId];

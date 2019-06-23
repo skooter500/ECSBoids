@@ -227,7 +227,7 @@ MonoBehaviour:
   spineLength: 10
   bondDamping: 0.01
   angularDamping: 5
-  numBoids: 5000
+  numBoids: 10000
   radius: 2000
   neighbourDistance: 150
   speed: 0
