@@ -69,7 +69,7 @@ struct CopyTransformsFromSpineJob : IJobProcessComponentData<Position, Rotation,
 
 public class SpineSystem : JobComponentSystem
 {
-    BoidBootstrap bootstrap;
+    public BoidBootstrap bootstrap;
 
     public NativeArray<Vector3> positions;
     public NativeArray<Quaternion> rotations;
@@ -77,8 +77,11 @@ public class SpineSystem : JobComponentSystem
     public const int MAX_SPINES = 300000;
     public int numSpines = 0;
 
+    public static SpineSystem Instance;
+
     protected override void OnCreateManager()
     {
+        Instance = this;
         base.OnCreateManager();
 
         bootstrap = GameObject.FindObjectOfType<BoidBootstrap>();

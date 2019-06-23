@@ -108,17 +108,17 @@ public class BoidJobSystem : JobComponentSystem
         public void Execute(ref Head h, ref Position p, ref Rotation r)
         {
             Vector3 up = Vector3.up;
-            Quaternion q = rotations[h.boidId] * Quaternion.AngleAxis(Mathf.Sin(h.theta) * amplitude, up);
+            Quaternion q = rotations[h.spineId] * Quaternion.AngleAxis(Mathf.Sin(h.theta) * amplitude, up);
 
             // Calculate the center point of the head
-            Vector3 pos = positions[h.boidId]
-                + rotations[h.boidId] * (Vector3.forward * size * 0.5f)
+            Vector3 pos = positions[h.spineId]
+                + rotations[h.spineId] * (Vector3.forward * size * 0.5f)
                 + q * (Vector3.forward * size * 0.5f);
 
             p.Value = pos;
             r.Value = q;
             
-            h.theta += frequency * dT * Mathf.PI * 2.0f * speeds[h.boidId];
+            h.theta += frequency * dT * Mathf.PI * 2.0f * speeds[h.spineId];
         }
     }
 
@@ -734,8 +734,8 @@ public class BoidJobSystem : JobComponentSystem
         // Animate the head and tail
         var headJob = new HeadJob()
         {
-            positions = this.positions,
-            rotations = this.rotations,
+            positions = SpineSystem.Instance.positions,
+            rotations = SpineSystem.Instance.rotations,
             speeds = this.speeds,
             dT = Time.deltaTime * bootstrap.speed,
             amplitude = bootstrap.headAmplitude,

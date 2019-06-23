@@ -32,7 +32,7 @@ public struct Spine : IComponentData
 public struct Head : IComponentData
 {
     public float theta;
-    public int boidId;
+    public int spineId;
 }
 
 public struct Tail : IComponentData
@@ -169,9 +169,8 @@ public class BoidBootstrap : MonoBehaviour
 
         }
 
-        /*
-
         // Make the head
+        
         Entity headEntity = entityManager.CreateEntity(headArchitype);
 
         Position headPosition = new Position();
@@ -183,8 +182,10 @@ public class BoidBootstrap : MonoBehaviour
         entityManager.AddSharedComponentData(headEntity, bodyMesh);
         entityManager.SetComponentData(headEntity, s);
 
-        entityManager.SetComponentData(headEntity, new Head() { boidId = i});
+        entityManager.SetComponentData(headEntity, new Head() { spineId = boidId * (spineLength + 1) });
         // End head
+
+        /*
 
         // Make the tail
         Entity tailEntity = entityManager.CreateEntity(tailArchitype);
