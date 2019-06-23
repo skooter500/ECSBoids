@@ -224,9 +224,9 @@ MonoBehaviour:
   animationFrequency: 0.03
   totalNeighbours: 100
   threedcells: 0
-  spineLength: 10
-  bondDamping: 80
-  angularDamping: 5
+  spineLength: 2
+  bondDamping: 20
+  angularDamping: 2
   numBoids: 5000
   radius: 2000
   neighbourDistance: 150

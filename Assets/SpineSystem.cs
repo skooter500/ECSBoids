@@ -27,11 +27,11 @@ struct SpineJob: IJobProcessComponentData<Spine, Position, Rotation>
             return;
         }
         Vector3 wantedPosition = positions[s.parent] + rotations[s.parent] * s.offset;
-        p.Value = Vector3.Lerp(p.Value, wantedPosition, bondDamping * dT);
+        positions[s.spineId] = Vector3.Lerp(positions[s.spineId], wantedPosition, bondDamping * dT);
 
         Vector3 myPos = p.Value;
         Quaternion wantedQuaternion = Quaternion.LookRotation(positions[s.parent] - myPos);
-        r.Value = Quaternion.Slerp(r.Value, wantedQuaternion, angularBondDamping * dT);
+        rotations[s.spineId] = Quaternion.Slerp(rotations[s.spineId], wantedQuaternion, angularBondDamping * dT);
     }
 }
 
@@ -116,15 +116,15 @@ public class SpineSystem : JobComponentSystem
             bondDamping = bootstrap.bondDamping,
             dT = Time.deltaTime            
         };
-        //var spineHandle = spineJob.Schedule(this, ctjHandle);
+        var spineHandle = spineJob.Schedule(this, ctjHandle);
 
-        /*var cfj = new CopyTransformsFromSpineJob()
+        var cfj = new CopyTransformsFromSpineJob()
         {
             positions = this.positions,
             rotations = this.rotations
         };
-        */
-        return spineJob.Schedule(this, ctjHandle);
+        
+        return cfj.Schedule(this, spineHandle);
     }
 
 }
