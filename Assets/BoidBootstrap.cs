@@ -289,9 +289,9 @@ public class BoidBootstrap : MonoBehaviour
         if (Input.GetKey(KeyCode.Joystick1Button1))
         {
             speed += Time.deltaTime;
-            if (speed > 2)
+            if (speed > 5)
             {
-                speed = 2;
+                speed = 5;
             }
         }
         Explosion();
