@@ -230,7 +230,7 @@ MonoBehaviour:
   numBoids: 1000
   radius: 3000
   neighbourDistance: 150
-  speed: 2
+  speed: 0
   size: 8
   cellSize: 50
   gridSize: 10000
@@ -279,7 +279,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 882082061}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 97ae5d00cb174a74b85b5cee17b07fda, type: 3}
   m_Name: 
@@ -310,7 +310,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 882082061}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 73cc7b9f2a39c0a45bff920c1c706411, type: 3}
   m_Name: 

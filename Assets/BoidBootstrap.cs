@@ -115,17 +115,23 @@ public class BoidBootstrap : MonoBehaviour
     {
         Entity boidEntity = entityManager.CreateEntity(boidArchitype);
 
-        Position p = new Position();
-        p.Value = pos;
+        Position p = new Position
+        {
+            Value = pos
+        };
 
-        Rotation r = new Rotation();
-        r.Value = q;
+        Rotation r = new Rotation
+        {
+            Value = q
+        };
 
         entityManager.SetComponentData(boidEntity, p);
         entityManager.SetComponentData(boidEntity, r);
 
-        Scale s = new Scale();
-        s.Value = new Vector3(size * 0.5f, size, size);
+        Scale s = new Scale
+        {
+            Value = new Vector3(size * 0.5f, size, size)
+        };
         //s.Value = new Vector3(2, 4, 10);
 
         entityManager.SetComponentData(boidEntity, s);
@@ -146,12 +152,23 @@ public class BoidBootstrap : MonoBehaviour
         for(int i = 0; i < spineLength; i ++)
         {
             int parentId = (boidId * (spineLength + 1)) + i;
-            Position sp = new Position();
-            sp.Value = pos - (q * Vector3.forward) * size;
+            Position sp = new Position
+            {
+                Value = pos - (q * Vector3.forward) * size * (float) (i + 1)
+            };
             Entity spineEntity = entityManager.CreateEntity(spineArchitype);
 
             entityManager.SetComponentData(spineEntity, sp);
+            entityManager.SetComponentData(spineEntity, r);
             entityManager.SetComponentData(spineEntity, new Spine() { parent = parentId, spineId = parentId + 1, offset = new Vector3(0, 0, -size) });
+            entityManager.AddSharedComponentData(spineEntity, bodyMesh);
+            s = new Scale
+            {
+                Value = new Vector3(size * 0.5f, size, size)
+            };
+            //s.Value = new Vector3(2, 4, 10);
+            entityManager.SetComponentData(spineEntity, s);
+
         }
 
         /*
@@ -212,7 +229,9 @@ public class BoidBootstrap : MonoBehaviour
             typeof(Alignment),
             typeof(Wander),
             typeof(Constrain),
-            typeof(Flee)
+            typeof(Flee),
+            typeof(Spine)
+
         );
 
         headArchitype = entityManager.CreateArchetype(
@@ -232,12 +251,15 @@ public class BoidBootstrap : MonoBehaviour
         spineArchitype = entityManager.CreateArchetype(
                 typeof(Position),
                 typeof(Rotation),
+                typeof(Scale),
                 typeof(Spine)
                 );
 
-        bodyMesh = new RenderMesh();
-        bodyMesh.mesh = mesh;
-        bodyMesh.material = material;
+        bodyMesh = new RenderMesh
+        {
+            mesh = mesh,
+            material = material
+        };
 
         for (int i = 0; i < numBoids; i++)
         {

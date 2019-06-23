@@ -86,8 +86,15 @@ public class SpineSystem : JobComponentSystem
         positions = new NativeArray<Vector3>(MAX_SPINES, Allocator.Persistent);
         rotations = new NativeArray<Quaternion>(MAX_SPINES, Allocator.Persistent);
         numSpines = 0;
-
     }
+
+    protected override void OnDestroyManager()
+    {
+        positions.Dispose();
+        rotations.Dispose();
+    }
+
+
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         var ctj = new CopyTransformsToSpineJob()
@@ -100,6 +107,8 @@ public class SpineSystem : JobComponentSystem
 
         var spineJob = new SpineJob()
         {
+            positions = this.positions,
+            rotations = this.rotations,
             angularBondDamping = bootstrap.angularDamping,
             bondDamping = bootstrap.bondDamping,
             dT = Time.deltaTime            
