@@ -291,6 +291,7 @@ public class BoidJobSystem : JobComponentSystem
 
         public float damping;
         public float banking;
+        public float limitUpAndDown;
 
         public float dT;
 
@@ -373,6 +374,7 @@ public class BoidJobSystem : JobComponentSystem
             
             b.force = Vector3.ClampMagnitude(b.force, b.maxForce);
             Vector3 newAcceleration = (b.force * b.weight) / b.mass;
+            newAcceleration.y *= limitUpAndDown;
             b.acceleration = Vector3.Lerp(b.acceleration, newAcceleration, dT);
             b.velocity += b.acceleration * dT;
             b.velocity = Vector3.ClampMagnitude(b.velocity, b.maxSpeed);
@@ -667,6 +669,7 @@ public class BoidJobSystem : JobComponentSystem
             speeds = this.speeds,
             dT = Time.deltaTime * bootstrap.speed,
             damping = 0.01f,
+            limitUpAndDown = bootstrap.limitUpAndDown,
             banking = 0.00f
         };
         var boidHandle = boidJob.Schedule(this, fleeHandle);

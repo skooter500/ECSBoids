@@ -212,7 +212,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   material: {fileID: 2100000, guid: 3eed7dac13da17543a8dca75fb843ef2, type: 2}
-  seperationWeight: 10
+  seperationWeight: 15
   cohesionWeight: 2
   alignmentWeight: 1
   wanderWeight: 2
@@ -221,17 +221,19 @@ MonoBehaviour:
   fleeDistance: 50
   headAmplitude: 15
   tailAmplitude: 30
-  animationFrequency: 0.03
+  animationFrequency: 0.02
   totalNeighbours: 100
   threedcells: 0
-  spineLength: 10
+  spineLength: 5
   bondDamping: 0.01
-  angularDamping: 5
+  angularDamping: 10
+  limitUpAndDown: 0
+  maxBoidsPerFrame: 200
   numBoids: 7000
   radius: 2000
   neighbourDistance: 150
-  speed: 0
-  size: 8
+  speed: 2
+  size: 20
   cellSize: 50
   gridSize: 10000
   usePartitioning: 1

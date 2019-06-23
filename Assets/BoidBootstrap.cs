@@ -113,6 +113,10 @@ public class BoidBootstrap : MonoBehaviour
     public float bondDamping = 10;
     public float angularDamping = 10;
 
+    public float limitUpAndDown = 0.5f;
+
+    public int maxBoidsPerFrame = 1000;
+
     Entity CreateBoid(Vector3 pos, Quaternion q, int boidId, float size)
     {
         Entity boidEntity = entityManager.CreateEntity(boidArchitype);
@@ -264,14 +268,33 @@ public class BoidBootstrap : MonoBehaviour
             material = material
         };
 
+        StartCoroutine(CreateBoids());
+
+        /*
+
         for (int i = 0; i < numBoids; i++)
         {
-            Vector3 pos = Random.insideUnitSphere * radius;
-            CreateBoid(transform.position + pos, Quaternion.identity, i, size);
+            
         }
+        */
 
-        //Cursor.visible = false;
+        Cursor.visible = false;
         //Cursor.lockState = CursorLockMode.Locked;
+    }
+
+    IEnumerator CreateBoids()
+    {
+        int created = 0;
+        while(created < numBoids)
+        {
+            Vector3 pos = Random.insideUnitSphere * radius;
+            CreateBoid(transform.position + pos, Quaternion.identity, created, size);
+            created++;
+            if (created % maxBoidsPerFrame == 0)
+            {
+                yield return null;
+            }           
+        }
     }
 
     public float size = 3.0f;
