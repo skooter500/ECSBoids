@@ -7,6 +7,41 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+public struct Flee : IComponentData
+{
+    public Vector3 force;
+}
+
+public struct Seperation : IComponentData
+{
+    public Vector3 force;
+}
+
+public struct Constrain : IComponentData
+{
+    public Vector3 force;
+}
+
+public struct Cohesion : IComponentData
+{
+    public Vector3 force;
+}
+
+public struct Alignment : IComponentData
+{
+    public Vector3 force;
+}
+
+public struct Wander : IComponentData
+{
+    public Vector3 force;
+
+    public float distance;
+    public float radius;
+    public float jitter;
+    public Vector3 target;
+}
+
 
 public class BoidJobSystem : JobComponentSystem
 {

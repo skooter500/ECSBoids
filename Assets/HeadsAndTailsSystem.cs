@@ -7,6 +7,20 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+public struct Head : IComponentData
+{
+    public float theta;
+    public int spineId;
+    public int boidId;
+}
+
+public struct Tail : IComponentData
+{
+    public float theta;
+    public int boidId;
+    public int spineId;
+}
+
 [BurstCompile]
 struct HeadJob : IJobProcessComponentData<Head, Position, Rotation>
 {

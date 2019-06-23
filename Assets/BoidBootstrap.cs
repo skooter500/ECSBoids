@@ -22,61 +22,7 @@ public struct Boid:IComponentData
     public Vector3 fleeForce; // Have to put this here because there is a limit to the number of components in IJobProcessComponentData
 }
 
-public struct Spine : IComponentData
-{
-    public int parent;
-    public int spineId;    
-    public Vector3 offset;
-}
 
-public struct Head : IComponentData
-{
-    public float theta;
-    public int spineId;
-    public int boidId;
-}
-
-public struct Tail : IComponentData
-{
-    public float theta;
-    public int boidId;
-    public int spineId;
-}
-
-public struct Flee : IComponentData
-{
-    public Vector3 force;
-}
-
-public struct Seperation : IComponentData
-{
-    public Vector3 force;
-}
-
-public struct Constrain : IComponentData
-{
-    public Vector3 force;
-}
-
-public struct Cohesion : IComponentData
-{
-    public Vector3 force;
-}
-
-public struct Alignment : IComponentData
-{
-    public Vector3 force;
-}
-
-public struct Wander : IComponentData
-{
-    public Vector3 force;
-
-    public float distance;
-    public float radius;
-    public float jitter;
-    public Vector3 target;
-}
 
 public class BoidBootstrap : MonoBehaviour
 {

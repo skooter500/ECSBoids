@@ -217,8 +217,8 @@ MonoBehaviour:
   alignmentWeight: 1
   wanderWeight: 2
   constrainWeight: 1
-  fleeWeight: 10
-  fleeDistance: 100
+  fleeWeight: 50
+  fleeDistance: 500
   headAmplitude: 15
   tailAmplitude: 30
   animationFrequency: 0.02
@@ -281,7 +281,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 882082061}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 97ae5d00cb174a74b85b5cee17b07fda, type: 3}
   m_Name: 
@@ -312,13 +312,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 882082061}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 73cc7b9f2a39c0a45bff920c1c706411, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   headCamera: {fileID: 1096714492}
-  power: 10000
+  power: 20000
   lookEnabled: 1
   moveEnabled: 1
   rotating: 0

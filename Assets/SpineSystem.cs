@@ -7,6 +7,14 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+
+public struct Spine : IComponentData
+{
+    public int parent;
+    public int spineId;
+    public Vector3 offset;
+}
+
 struct SpineJob: IJobProcessComponentData<Spine, Position, Rotation>
 {
     [NativeDisableParallelForRestriction]
