@@ -203,7 +203,7 @@ public class BoidBootstrap : MonoBehaviour
         entityManager.SetComponentData(tailEntity, tailRotation);
         entityManager.AddSharedComponentData(tailEntity, bodyMesh);
         entityManager.SetComponentData(tailEntity, s);
-        entityManager.SetComponentData(tailEntity, new Tail() { boidId = boidId, spineId = (boidId * (spineLength + 1)) + spineLength });
+        entityManager.SetComponentData(tailEntity, new Tail() { boidId = boidId, spineId = (boidId * (spineLength + 1)) + spineLength});
         // End tail       
 
         return boidEntity;
