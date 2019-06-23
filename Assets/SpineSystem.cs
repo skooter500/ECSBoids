@@ -74,7 +74,7 @@ public class SpineSystem : JobComponentSystem
     public NativeArray<Vector3> positions;
     public NativeArray<Quaternion> rotations;
 
-    public const int MAX_SPINES = 10000;
+    public const int MAX_SPINES = 300000;
     public int numSpines = 0;
 
     protected override void OnCreateManager()
@@ -113,14 +113,15 @@ public class SpineSystem : JobComponentSystem
             bondDamping = bootstrap.bondDamping,
             dT = Time.deltaTime            
         };
-        var spineHandle = spineJob.Schedule(this, ctjHandle);
+        //var spineHandle = spineJob.Schedule(this, ctjHandle);
 
-        var cfj = new CopyTransformsFromSpineJob()
+        /*var cfj = new CopyTransformsFromSpineJob()
         {
             positions = this.positions,
             rotations = this.rotations
         };
-        return cfj.Schedule(this, spineHandle);
+        */
+        return spineJob.Schedule(this, ctjHandle);
     }
 
 }

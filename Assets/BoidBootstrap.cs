@@ -130,12 +130,10 @@ public class BoidBootstrap : MonoBehaviour
 
         Scale s = new Scale
         {
-            Value = new Vector3(size * 0.5f, size, size)
+            Value = new Vector3(size * 0.2f, size, size)
         };
-        //s.Value = new Vector3(2, 4, 10);
-
+        
         entityManager.SetComponentData(boidEntity, s);
-
 
         entityManager.SetComponentData(boidEntity, new Boid() {boidId = boidId, mass = 1, maxSpeed = 100, maxForce = 400, weight = 200});
         entityManager.SetComponentData(boidEntity, new Seperation() );
