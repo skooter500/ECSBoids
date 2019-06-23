@@ -25,7 +25,7 @@ public struct Boid:IComponentData
 public struct Spine : IComponentData
 {
     public int parent;
-    public int spineId;
+    public int spineId;    
     public Vector3 offset;
 }
 
@@ -33,12 +33,14 @@ public struct Head : IComponentData
 {
     public float theta;
     public int spineId;
+    public int boidId;
 }
 
 public struct Tail : IComponentData
 {
     public float theta;
     public int boidId;
+    public int spineId;
 }
 
 public struct Flee : IComponentData
@@ -130,7 +132,7 @@ public class BoidBootstrap : MonoBehaviour
 
         Scale s = new Scale
         {
-            Value = new Vector3(size * 0.2f, size, size)
+            Value = new Vector3(size * 0.3f, size, size)
         };
         
         entityManager.SetComponentData(boidEntity, s);
@@ -162,7 +164,7 @@ public class BoidBootstrap : MonoBehaviour
             entityManager.AddSharedComponentData(spineEntity, bodyMesh);
             s = new Scale
             {
-                Value = new Vector3(size * 0.5f, size, size)
+                Value = new Vector3(size * 0.3f, size, size)
             };
             //s.Value = new Vector3(2, 4, 10);
             entityManager.SetComponentData(spineEntity, s);
@@ -181,26 +183,28 @@ public class BoidBootstrap : MonoBehaviour
         entityManager.SetComponentData(headEntity, headRotation);
         entityManager.AddSharedComponentData(headEntity, bodyMesh);
         entityManager.SetComponentData(headEntity, s);
-
-        entityManager.SetComponentData(headEntity, new Head() { spineId = boidId * (spineLength + 1) });
+        s = new Scale
+        {
+            Value = new Vector3(size * 0.3f, size, size)
+        };
+        //s.Value = new Vector3(2, 4, 10);
+        entityManager.SetComponentData(headEntity, s);
+        entityManager.SetComponentData(headEntity, new Head() { spineId = boidId * (spineLength + 1), boidId = boidId });
         // End head
 
-        /*
-
+        
         // Make the tail
         Entity tailEntity = entityManager.CreateEntity(tailArchitype);
         Position tailPosition = new Position();
-        tailPosition.Value = pos - (q * Vector3.forward) * size;
+        tailPosition.Value = pos - (q * Vector3.forward) * size * (spineLength + 2);
         entityManager.SetComponentData(tailEntity, tailPosition);
         Rotation tailRotation = new Rotation();
         tailRotation.Value = q;
         entityManager.SetComponentData(tailEntity, tailRotation);
         entityManager.AddSharedComponentData(tailEntity, bodyMesh);
         entityManager.SetComponentData(tailEntity, s);
-        entityManager.SetComponentData(tailEntity, new Tail() { boidId = i });
-        // End tail
-
-        */
+        entityManager.SetComponentData(tailEntity, new Tail() { boidId = boidId, spineId = (boidId * (spineLength + 1)) + spineLength });
+        // End tail       
 
         return boidEntity;
     }

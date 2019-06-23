@@ -118,7 +118,7 @@ public class BoidJobSystem : JobComponentSystem
             p.Value = pos;
             r.Value = q;
             
-            h.theta += frequency * dT * Mathf.PI * 2.0f * speeds[h.spineId];
+            h.theta += frequency * dT * Mathf.PI * 2.0f * speeds[h.boidId];
         }
     }
 
@@ -142,10 +142,10 @@ public class BoidJobSystem : JobComponentSystem
         public void Execute(ref Tail t, ref Position p, ref Rotation r)
         {
             Vector3 up = Vector3.up;
-            Quaternion q = rotations[t.boidId] * Quaternion.AngleAxis(Mathf.Sin(-t.theta) * amplitude, up);
+            Quaternion q = rotations[t.spineId] * Quaternion.AngleAxis(Mathf.Sin(-t.theta) * amplitude, up);
             // Calculate the center point of the tail
-            Vector3 pos = positions[t.boidId]
-                - rotations[t.boidId] * (Vector3.forward * size * 0.5f)
+            Vector3 pos = positions[t.spineId]
+                - rotations[t.spineId] * (Vector3.forward * size * 0.5f)
                 - q * (Vector3.forward * size * 0.5f);
             p.Value = pos;
             r.Value = q;
@@ -747,8 +747,8 @@ public class BoidJobSystem : JobComponentSystem
 
         var tailJob = new TailJob()
         {
-            positions = this.positions,
-            rotations = this.rotations,
+            positions = SpineSystem.Instance.positions,
+            rotations = SpineSystem.Instance.rotations,
             speeds = this.speeds,
             dT = Time.deltaTime * bootstrap.speed,
             amplitude = bootstrap.tailAmplitude,

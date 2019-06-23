@@ -224,13 +224,13 @@ MonoBehaviour:
   animationFrequency: 0.03
   totalNeighbours: 100
   threedcells: 0
-  spineLength: 5
-  bondDamping: 50
+  spineLength: 10
+  bondDamping: 80
   angularDamping: 5
-  numBoids: 7000
+  numBoids: 5000
   radius: 2000
   neighbourDistance: 150
-  speed: 3.68
+  speed: 0
   size: 8
   cellSize: 50
   gridSize: 10000
