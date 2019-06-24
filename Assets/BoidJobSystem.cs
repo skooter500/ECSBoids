@@ -725,7 +725,7 @@ public class BoidJobSystem : JobComponentSystem
         var constrainJob = new ConstrainJob()
         {
             positions = this.positions,
-            centre = bootstrap.transform.position,
+            centre = Camera.main.transform.position,
             radius = bootstrap.radius,
             weight = bootstrap.constrainWeight
         };

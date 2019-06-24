@@ -27,6 +27,7 @@ public class BoidBootstrap : MonoBehaviour
     public float cohesionWeight = 2.0f;
     public float alignmentWeight = 1.0f;
     public float wanderWeight = 1.0f;
+    public float baseConstrainWeight = 1.0f;
     public float constrainWeight = 1.0f;
 
     public float fleeWeight = 1.0f;
@@ -157,6 +158,7 @@ public class BoidBootstrap : MonoBehaviour
     void Start()
     {
         Cursor.visible = false;
+        constrainWeight = baseConstrainWeight;
         entityManager = World.Active.GetOrCreateManager<EntityManager>();
 
         boidArchitype = entityManager.CreateArchetype(
@@ -291,7 +293,7 @@ public class BoidBootstrap : MonoBehaviour
                     neighbourDistance = 100;
                     limitUpAndDown = 1;
                     seekWeight = 0;
-                    constrainWeight = 1;
+                    constrainWeight = baseConstrainWeight;
                     break;
                 case 3:
                     radius = 3000;
@@ -300,7 +302,7 @@ public class BoidBootstrap : MonoBehaviour
                     neighbourDistance = 100;
                     limitUpAndDown = 1;
                     seekWeight = 0;
-                    constrainWeight = 1;
+                    constrainWeight = baseConstrainWeight;
                     break;
                 case 4:
                     radius = 4000;
@@ -309,7 +311,7 @@ public class BoidBootstrap : MonoBehaviour
                     cohesionWeight = 0;
                     limitUpAndDown = 1;
                     seekWeight = 0;
-                    constrainWeight = 1;
+                    constrainWeight = baseConstrainWeight;
                     break;
                 case 5:
                     radius = 5000;
@@ -318,7 +320,7 @@ public class BoidBootstrap : MonoBehaviour
                     cohesionWeight = 0;
                     limitUpAndDown = 1;
                     seekWeight = 0;
-                    constrainWeight = 1;
+                    constrainWeight = baseConstrainWeight;
                     break;
                 case 6:
                     radius = 2000;
@@ -327,7 +329,7 @@ public class BoidBootstrap : MonoBehaviour
                     cohesionWeight = 2;
                     limitUpAndDown = 0.9f;
                     seekWeight = 0;
-                    constrainWeight = 1;
+                    constrainWeight = baseConstrainWeight;
                     break;
                 case 7:
                     radius = 3000;
@@ -335,7 +337,7 @@ public class BoidBootstrap : MonoBehaviour
                     totalNeighbours = 100;
                     cohesionWeight = 2;
                     limitUpAndDown = 0.9f;
-                    constrainWeight = 1;
+                    constrainWeight = baseConstrainWeight;
                     break;
                 case 8:
                     radius = 4000;
@@ -344,7 +346,7 @@ public class BoidBootstrap : MonoBehaviour
                     cohesionWeight = 2;
                     limitUpAndDown = 0.9f;
                     seekWeight = 0;
-                    constrainWeight = 1;
+                    constrainWeight = baseConstrainWeight;
                     break;
                 case 9:
                     radius = 5000;
@@ -353,7 +355,7 @@ public class BoidBootstrap : MonoBehaviour
                     cohesionWeight = 2;
                     limitUpAndDown = 0.9f;
                     seekWeight = 0;
-                    constrainWeight = 1;
+                    constrainWeight = baseConstrainWeight;
                     break;
                 case 10:
                     seekWeight = 1;

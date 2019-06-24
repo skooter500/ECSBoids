@@ -60,16 +60,16 @@ Material:
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
-    - _Fade: 0.2
+    - _Fade: 0.374
     - _GlossMapScale: 1
-    - _Glossiness: 0.5
+    - _Glossiness: 0.141
     - _GlossyReflections: 1
-    - _Metallic: 0.091
+    - _Metallic: 0.155
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Offset: 1
     - _Parallax: 0.02
-    - _PositionScale: 476
+    - _PositionScale: 1000
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
