@@ -51,6 +51,16 @@ public class BoidBootstrap : MonoBehaviour
 
     public float seekWeight = 0;
 
+    public Vector3 constrainPosition;
+
+    public static float Map(float value, float r1, float r2, float m1, float m2)
+    {
+        float dist = value - r1;
+        float range1 = r2 - r1;
+        float range2 = m2 - m1;
+        return m1 + ((dist / range1) * range2);
+    }
+
     Entity CreateBoid(Vector3 pos, Quaternion q, int boidId, float size)
     {
         Entity boidEntity = entityManager.CreateEntity(boidArchitype);
@@ -102,7 +112,7 @@ public class BoidBootstrap : MonoBehaviour
             entityManager.AddSharedComponentData(spineEntity, bodyMesh);
             s = new Scale
             {
-                Value = new Vector3(size * 0.3f, size, size)
+                Value = new Vector3(size * 0.3f, Map(i, 0, spineLength, size, 0.1f * size), size)
             };
             //s.Value = new Vector3(2, 4, 10);
             entityManager.SetComponentData(spineEntity, s);
@@ -130,7 +140,7 @@ public class BoidBootstrap : MonoBehaviour
         entityManager.SetComponentData(headEntity, new Head() { spineId = boidId * (spineLength + 1), boidId = boidId });
         // End head
 
-        
+        /*
         // Make the tail
         Entity tailEntity = entityManager.CreateEntity(tailArchitype);
         Position tailPosition = new Position();
@@ -138,11 +148,18 @@ public class BoidBootstrap : MonoBehaviour
         entityManager.SetComponentData(tailEntity, tailPosition);
         Rotation tailRotation = new Rotation();
         tailRotation.Value = q;
+        s = new Scale
+        {
+            Value = new Vector3(size * 0.3f, size * 0.1f, size)
+        };
+        //s.Value = new Vector3(2, 4, 10);
+        entityManager.SetComponentData(tailEntity, s);
         entityManager.SetComponentData(tailEntity, tailRotation);
         entityManager.AddSharedComponentData(tailEntity, bodyMesh);
         entityManager.SetComponentData(tailEntity, s);
         entityManager.SetComponentData(tailEntity, new Tail() { boidId = boidId, spineId = (boidId * (spineLength + 1)) + spineLength});
-        // End tail       
+        // End tail    
+        */
 
         return boidEntity;
     }
@@ -157,6 +174,7 @@ public class BoidBootstrap : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        constrainPosition = transform.position;
         Cursor.visible = false;
         constrainWeight = baseConstrainWeight;
         entityManager = World.Active.GetOrCreateManager<EntityManager>();
@@ -285,6 +303,7 @@ public class BoidBootstrap : MonoBehaviour
                     totalNeighbours = 1;
                     limitUpAndDown = 1;
                     seekWeight = 0;
+                    constrainPosition = Camera.main.transform.position;
                     break;
                 case 2:
                     radius = 2000;
