@@ -232,7 +232,7 @@ MonoBehaviour:
   maxBoidsPerFrame: 200
   seekWeight: 0
   constrainPosition: {x: 0, y: 0, z: 0}
-  numBoids: 3000
+  numBoids: 4000
   radius: 3000
   neighbourDistance: 150
   speed: 2

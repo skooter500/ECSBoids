@@ -36,7 +36,7 @@ public struct Seek : IComponentData
 
 public struct Seperation : IComponentData
 {
-    public Vector3 force;
+    public Vector3 force; 
 }
 
 public struct Constrain : IComponentData
@@ -161,10 +161,15 @@ public class BoidJobSystem : JobComponentSystem
         public int maxNeighbours;
         public Unity.Mathematics.Random random;
 
+        public int spineOffset;
+        public int spineLength;
+
         public void Execute(ref Boid b, ref Seperation s)
         {
             Vector3 force = Vector3.zero;
             int neighbourStartIndex = maxNeighbours * b.boidId;
+            int mySpineId = b.boidId * (spineLength + 1);
+            Vector3 myPosition = positions[mySpineId + spineOffset];
             for (int i = 0; i < b.taggedCount; i++)
             {
                 int neighbourId = neighbours[neighbourStartIndex + i];
@@ -172,11 +177,13 @@ public class BoidJobSystem : JobComponentSystem
                 {
                     continue;
                 }
-                Vector3 toNeighbour = positions[b.boidId] - positions[neighbourId];
+                int neighbourSpineId = (neighbourId * (spineLength + 1)) + spineOffset;
+                //Vector3 toNeighbour = positions[b.boidId] - positions[neighbourId];
+                Vector3 toNeighbour = myPosition - positions[neighbourSpineId];
                 float mag = toNeighbour.magnitude;
-                force += (Vector3.Normalize(toNeighbour) / mag);
+                //force += (Vector3.Normalize(toNeighbour) / mag);
                 
-                /*
+                
                 if (mag > 0) // Need this check otherwise this behaviour can return NAN
                 {
                     force += (Vector3.Normalize(toNeighbour) / mag);
@@ -187,7 +194,7 @@ public class BoidJobSystem : JobComponentSystem
                     Vector3 f = random.NextFloat3Direction();
                     force += f  * b.maxForce;
                 }
-                */
+                
             }
             s.force = force * weight;
         }
@@ -681,7 +688,9 @@ public class BoidJobSystem : JobComponentSystem
 
         var seperationJob = new SeperationJob()
         {
-            positions = this.positions,
+            positions = SpineSystem.Instance.positions,
+            spineLength = bootstrap.spineLength,
+            spineOffset = bootstrap.spineLength / 2,
             maxNeighbours = this.maxNeighbours,
             random = ran,
             neighbours = this.neighbours,
