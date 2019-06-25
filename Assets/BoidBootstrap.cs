@@ -47,7 +47,7 @@ public class BoidBootstrap : MonoBehaviour
 
     public float limitUpAndDown = 0.5f;
 
-    public int maxBoidsPerFrame = 1000;
+    public int maxBoidsPerFrame = 10000;
 
     public float seekWeight = 0;
 
@@ -241,7 +241,8 @@ public class BoidBootstrap : MonoBehaviour
         while(created < numBoids)
         {
             Vector3 pos = Random.insideUnitSphere * radius;
-            CreateBoid(transform.position + pos, Quaternion.identity, created, size);
+            Quaternion q = Quaternion.Euler(Random.Range(-20, 20), Random.Range(0, 360), 0);
+            CreateBoid(transform.position + pos, q, created, size);
             created++;
             if (created % maxBoidsPerFrame == 0)
             {

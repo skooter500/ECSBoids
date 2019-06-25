@@ -216,8 +216,8 @@ MonoBehaviour:
   cohesionWeight: 2
   alignmentWeight: 1
   wanderWeight: 2
-  baseConstrainWeight: 0.1
-  constrainWeight: 1
+  baseConstrainWeight: 3
+  constrainWeight: 3
   fleeWeight: 3
   fleeDistance: 200
   headAmplitude: 10
@@ -229,7 +229,7 @@ MonoBehaviour:
   bondDamping: 0.01
   angularDamping: 8
   limitUpAndDown: 0.9
-  maxBoidsPerFrame: 200
+  maxBoidsPerFrame: 10000
   seekWeight: 0
   constrainPosition: {x: 0, y: 0, z: 0}
   numBoids: 4000
