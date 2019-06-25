@@ -220,8 +220,8 @@ MonoBehaviour:
   constrainWeight: 1
   fleeWeight: 3
   fleeDistance: 200
-  headAmplitude: 15
-  tailAmplitude: 30
+  headAmplitude: 10
+  tailAmplitude: 10
   animationFrequency: 0.02
   totalNeighbours: 100
   threedcells: 0
@@ -231,6 +231,7 @@ MonoBehaviour:
   limitUpAndDown: 0.9
   maxBoidsPerFrame: 200
   seekWeight: 0
+  constrainPosition: {x: 0, y: 0, z: 0}
   numBoids: 3000
   radius: 3000
   neighbourDistance: 150
@@ -320,12 +321,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   headCamera: {fileID: 1096714492}
-  power: 30000
+  power: 10000
   lookEnabled: 1
   moveEnabled: 1
   rotating: 0
   attachedToCreature: 0
-  angularSpeed: 150
+  angularSpeed: 120
   addFlow: 0
   flowForce: 10
   flowScale: 0.01
@@ -437,7 +438,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 10000
+  far clip plane: 100000
   field of view: 60
   orthographic: 0
   orthographic size: 5

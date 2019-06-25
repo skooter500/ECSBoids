@@ -140,7 +140,7 @@ public class BoidBootstrap : MonoBehaviour
         entityManager.SetComponentData(headEntity, new Head() { spineId = boidId * (spineLength + 1), boidId = boidId });
         // End head
 
-        /*
+        
         // Make the tail
         Entity tailEntity = entityManager.CreateEntity(tailArchitype);
         Position tailPosition = new Position();
@@ -150,7 +150,7 @@ public class BoidBootstrap : MonoBehaviour
         tailRotation.Value = q;
         s = new Scale
         {
-            Value = new Vector3(size * 0.3f, size * 0.1f, size)
+            Value = new Vector3(size * 0.2f, size * 0.1f, size)
         };
         //s.Value = new Vector3(2, 4, 10);
         entityManager.SetComponentData(tailEntity, s);
@@ -159,8 +159,7 @@ public class BoidBootstrap : MonoBehaviour
         entityManager.SetComponentData(tailEntity, s);
         entityManager.SetComponentData(tailEntity, new Tail() { boidId = boidId, spineId = (boidId * (spineLength + 1)) + spineLength});
         // End tail    
-        */
-
+        
         return boidEntity;
     }
 
