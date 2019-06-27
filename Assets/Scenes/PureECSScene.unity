@@ -216,8 +216,8 @@ MonoBehaviour:
   cohesionWeight: 2
   alignmentWeight: 1
   wanderWeight: 2
-  baseConstrainWeight: 3
-  constrainWeight: 3
+  baseConstrainWeight: 0.2
+  constrainWeight: 0.2
   fleeWeight: 3
   fleeDistance: 200
   headAmplitude: 10
@@ -387,9 +387,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7255a3cc2609424bb4370e392a4a803, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 0.1
-  maxDist: 5000
+  speed: 300
+  maxDist: 4000
   target: 0
+  targetPos: {x: 0, y: 0, z: 0}
 --- !u!114 &882082069
 MonoBehaviour:
   m_ObjectHideFlags: 0

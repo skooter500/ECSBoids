@@ -335,7 +335,7 @@ public class BoidBootstrap : MonoBehaviour
                 case 5:
                     radius = 5000;
                     neighbourDistance = 150;
-                    totalNeighbours = 100;
+                    totalNeighbours = 0;
                     cohesionWeight = 0;
                     limitUpAndDown = 1;
                     seekWeight = 0;
