@@ -303,7 +303,7 @@ public class BoidBootstrap : MonoBehaviour
                     totalNeighbours = 1;
                     limitUpAndDown = 1;
                     seekWeight = 0;
-                    constrainPosition = Camera.main.transform.position;
+                    //constrainPosition = Camera.main.transform.position;
                     break;
                 case 2:
                     radius = 2000;

@@ -8,10 +8,12 @@ public class BackAndForthCamera : MonoBehaviour
     public float speed = 10;
     public float maxDist = 5000;
     public float target;
+    public Vector3 targetPos;
     void Start()
     {
         target = -maxDist;
-        transform.position = new Vector3(0, 0, target);
+        transform.position = new Vector3(100, 0, target);
+        targetPos = transform.position;
         
     }
 
@@ -20,14 +22,19 @@ public class BackAndForthCamera : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Joystick1Button2))
         {
+
             target = -target;
+            targetPos = Random.insideUnitSphere * target;      
         }
-        Vector3 targetPos = new Vector3(0, 0, target);
-        Vector3 pos = Vector3.Lerp(transform.position, targetPos, Time.deltaTime * speed);
-        transform.position = pos;
-        if (transform.position.magnitude > 5)
-        {
-            transform.forward = Vector3.Lerp(transform.forward, -transform.position, Time.deltaTime * 0.2f);
-        }
+        //Vector3 pos = Vector3.Lerp(transform.position, targetPos, Time.deltaTime * speed);
+
+        transform.position = Vector3.SmoothDamp(transform.position, targetPos, ref velocity, 3.0f);
+
+        //transform.position = pos;
+        //transform.forward = Vector3.Lerp(transform.forward, -transform.position, Time.deltaTime * 0.2f);
+        transform.forward = -transform.position;
     }
+
+    Vector3 velocity = Vector3.zero;
+
 }
