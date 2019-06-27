@@ -11,7 +11,7 @@ public class BackAndForthCamera : MonoBehaviour
     public Vector3 targetPos;
     void Start()
     {
-        transform.position = new Vector3(100, 0, maxDist);
+        transform.position = new Vector3(0, 0, maxDist);
         targetPos = transform.position;
         
     }
@@ -22,7 +22,7 @@ public class BackAndForthCamera : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Joystick1Button3))
         {
 
-            targetPos = Random.insideUnitSphere * Random.Range(2000, maxDist);     
+            targetPos = Random.insideUnitSphere * Random.Range(3000, maxDist);     
         }
         //Vector3 pos = Vector3.Lerp(transform.position, targetPos, Time.deltaTime * speed);
 

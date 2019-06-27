@@ -388,7 +388,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 300
-  maxDist: 4000
+  maxDist: 5000
   target: 0
   targetPos: {x: 0, y: 0, z: 0}
 --- !u!114 &882082069
