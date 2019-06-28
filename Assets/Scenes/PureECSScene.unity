@@ -216,8 +216,8 @@ MonoBehaviour:
   cohesionWeight: 2
   alignmentWeight: 1
   wanderWeight: 2
-  baseConstrainWeight: 0.05
-  constrainWeight: 0.2
+  baseConstrainWeight: 0.001
+  constrainWeight: 0.001
   fleeWeight: 3
   fleeDistance: 200
   headAmplitude: 10
@@ -388,7 +388,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 300
-  maxDist: 5500
+  maxDist: 5000
   target: 0
   targetPos: {x: 0, y: 0, z: 0}
 --- !u!114 &882082069
