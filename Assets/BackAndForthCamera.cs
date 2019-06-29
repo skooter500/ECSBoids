@@ -21,8 +21,13 @@ public class BackAndForthCamera : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Joystick1Button3))
         {
+            float dist = Random.Range(maxDist - 1000, maxDist + 1000);
+            targetPos = Random.insideUnitSphere.normalized * dist;
+            Debug.Log("Current distance: " + transform.position.magnitude);
+            Debug.Log("Target pos: " + targetPos);
+            Debug.Log("Target distance: " + targetPos.magnitude);
+            Debug.Log("Scale: " + dist);
 
-            targetPos = Random.insideUnitSphere * Random.Range(maxDist - 500, maxDist + 500);     
         }
         //Vector3 pos = Vector3.Lerp(transform.position, targetPos, Time.deltaTime * speed);
 
