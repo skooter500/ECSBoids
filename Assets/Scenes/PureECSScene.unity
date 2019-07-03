@@ -229,7 +229,7 @@ MonoBehaviour:
   bondDamping: 0.01
   angularDamping: 8
   limitUpAndDown: 0.9
-  maxBoidsPerFrame: 10000
+  maxBoidsPerFrame: 100
   seekWeight: 0
   constrainPosition: {x: 0, y: 0, z: 0}
   numBoids: 4000

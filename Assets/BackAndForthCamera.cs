@@ -23,11 +23,6 @@ public class BackAndForthCamera : MonoBehaviour
         {
             float dist = Random.Range(maxDist - 1000, maxDist + 1000);
             targetPos = Random.insideUnitSphere.normalized * dist;
-            Debug.Log("Current distance: " + transform.position.magnitude);
-            Debug.Log("Target pos: " + targetPos);
-            Debug.Log("Target distance: " + targetPos.magnitude);
-            Debug.Log("Scale: " + dist);
-
         }
         //Vector3 pos = Vector3.Lerp(transform.position, targetPos, Time.deltaTime * speed);
 
