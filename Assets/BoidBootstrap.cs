@@ -72,7 +72,80 @@ public class BoidBootstrap : MonoBehaviour
         entityManager.DestroyEntity(allTheSpines);
     }
 
-    Entity CreateBoid(Vector3 pos, Quaternion q, int boidId, float size)
+    Entity CreateSmallBoid(Vector3 pos, Quaternion q, int boidId, float size)
+    {
+        Entity boidEntity = entityManager.CreateEntity(boidArchitype);
+        allTheBoids[boidId] = boidEntity;
+
+        Position p = new Position();
+        p.Value = pos;
+
+        Rotation r = new Rotation();
+        r.Value = q;
+
+        entityManager.SetComponentData(boidEntity, p);
+        entityManager.SetComponentData(boidEntity, r);
+
+        Scale s = new Scale();
+        s.Value = new Vector3(size * 0.5f, size, size);
+        //s.Value = new Vector3(2, 4, 10);
+
+        entityManager.SetComponentData(boidEntity, s);
+
+
+        entityManager.SetComponentData(boidEntity, new Boid() { boidId = boidId, mass = 1, maxSpeed = 100, maxForce = 400, weight = 200 });
+        entityManager.SetComponentData(boidEntity, new Seperation());
+        entityManager.SetComponentData(boidEntity, new Alignment());
+        entityManager.SetComponentData(boidEntity, new Cohesion());
+        entityManager.SetComponentData(boidEntity, new Constrain());
+        entityManager.SetComponentData(boidEntity, new Flee());
+        entityManager.SetComponentData(boidEntity, new Wander()
+        {
+            distance = 2
+            ,
+            radius = 1.2f,
+            jitter = 80,
+            target = UnityEngine.Random.insideUnitSphere * 1.2f
+        });
+        entityManager.SetComponentData(boidEntity, new Spine() { parent = -1, spineId = boidId });
+
+        entityManager.AddSharedComponentData(boidEntity, bodyMesh);
+
+        // Make the head
+        Entity headEntity = entityManager.CreateEntity(headArchitype);
+        allTheheadsAndTails[boidId * 2] = headEntity;
+
+        Position headPosition = new Position();
+        headPosition.Value = pos + (q * Vector3.forward) * size;
+        entityManager.SetComponentData(headEntity, headPosition);
+        Rotation headRotation = new Rotation();
+        headRotation.Value = q;
+        entityManager.SetComponentData(headEntity, headRotation);
+        entityManager.AddSharedComponentData(headEntity, bodyMesh);
+        entityManager.SetComponentData(headEntity, s);
+        entityManager.SetComponentData(headEntity, new Head() { boidId = boidId, spineId = boidId });
+
+        // End head
+
+        // Make the tail
+        Entity tailEntity = entityManager.CreateEntity(tailArchitype);
+        allTheheadsAndTails[(boidId * 2) + 1] = tailEntity;
+
+        Position tailPosition = new Position();
+        tailPosition.Value = pos - (q * Vector3.forward) * size;
+        entityManager.SetComponentData(tailEntity, tailPosition);
+        Rotation tailRotation = new Rotation();
+        tailRotation.Value = q;
+        entityManager.SetComponentData(tailEntity, tailRotation);
+        entityManager.AddSharedComponentData(tailEntity, bodyMesh);
+        entityManager.SetComponentData(tailEntity, s);
+        entityManager.SetComponentData(tailEntity, new Tail() { boidId = boidId, spineId = boidId });
+        // End tail
+
+        return boidEntity;
+    }
+
+    Entity CreateBoidWithTail(Vector3 pos, Quaternion q, int boidId, float size)
     {
         Entity boidEntity = entityManager.CreateEntity(boidArchitype);
         allTheBoids[boidId] = boidEntity;
@@ -268,7 +341,7 @@ public class BoidBootstrap : MonoBehaviour
         {
             Vector3 pos = UnityEngine.Random.insideUnitSphere * radius;
             Quaternion q = Quaternion.Euler(UnityEngine.Random.Range(-20, 20), UnityEngine.Random.Range(0, 360), 0);
-            CreateBoid(transform.position + pos, q, created, size);
+            CreateBoidWithTail(transform.position + pos, q, created, size);
             created++;
             if (created % maxBoidsPerFrame == 0)
             {
