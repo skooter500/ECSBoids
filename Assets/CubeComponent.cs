@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CubeComponent : MonoBehaviour
+namespace ew
 {
-    public float speed;
-    public float theta;
-    public float scale;
+    public class CubeComponent : MonoBehaviour
+    {
+        public float speed;
+        public float theta;
+        public float scale;
 
+    }
 }
