@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
 
+namespace ew
+{
 public class CubeSystem : ComponentSystem
 {
     private struct Filter
@@ -41,3 +43,5 @@ public class CubeScaleSystem : ComponentSystem
         }
     }
 }
+}
+

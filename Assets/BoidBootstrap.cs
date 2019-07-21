@@ -9,6 +9,8 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Mathematics;
 
+namespace ew
+{
 public class BoidBootstrap : MonoBehaviour
 {
     private EntityArchetype boidArchitype;
@@ -497,5 +499,6 @@ public class BoidBootstrap : MonoBehaviour
             }
             clickCount = 0;
         }
-    }    
+    }
+}
 }
