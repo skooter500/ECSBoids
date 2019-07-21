@@ -232,7 +232,7 @@ MonoBehaviour:
   maxBoidsPerFrame: 100
   seekWeight: 0
   constrainPosition: {x: 0, y: 0, z: 0}
-  numBoids: 4000
+  numBoids: 2000
   radius: 3000
   neighbourDistance: 150
   speed: 2
@@ -382,7 +382,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 882082061}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f7255a3cc2609424bb4370e392a4a803, type: 3}
   m_Name: 
